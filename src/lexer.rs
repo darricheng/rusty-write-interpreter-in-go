@@ -55,7 +55,18 @@ impl Lexer {
         &self.input[position..self.position]
     }
 
+    fn skip_whitespace(&mut self) {
+        while self.ch as char == ' '
+            || self.ch as char == '\t'
+            || self.ch as char == '\n'
+            || self.ch as char == '\r'
+        {
+            self.read_char();
+        }
+    }
     fn next_token(&mut self) -> Token {
+        self.skip_whitespace();
+
         let tok: Token = match self.ch as char {
             '=' => Token::new_from_byte(TokenType::ASSIGN, self.ch),
             ';' => Token::new_from_byte(TokenType::SEMICOLON, self.ch),
