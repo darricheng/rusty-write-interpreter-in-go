@@ -42,16 +42,16 @@ impl Lexer {
 
     fn next_token(&mut self) -> Token {
         let tok: Token = match self.ch as char {
-            '=' => Token::new(TokenType::ASSIGN, self.ch),
-            ';' => Token::new(TokenType::SEMICOLON, self.ch),
-            '(' => Token::new(TokenType::LPAREN, self.ch),
-            ')' => Token::new(TokenType::RPAREN, self.ch),
-            ',' => Token::new(TokenType::COMMA, self.ch),
-            '+' => Token::new(TokenType::PLUS, self.ch),
-            '{' => Token::new(TokenType::LBRACE, self.ch),
-            '}' => Token::new(TokenType::RBRACE, self.ch),
-            '\0' => Token::new(TokenType::EOF, 0),
-            _ => Token::new(TokenType::ILLEGAL, self.ch),
+            '=' => Token::new_from_byte(TokenType::ASSIGN, self.ch),
+            ';' => Token::new_from_byte(TokenType::SEMICOLON, self.ch),
+            '(' => Token::new_from_byte(TokenType::LPAREN, self.ch),
+            ')' => Token::new_from_byte(TokenType::RPAREN, self.ch),
+            ',' => Token::new_from_byte(TokenType::COMMA, self.ch),
+            '+' => Token::new_from_byte(TokenType::PLUS, self.ch),
+            '{' => Token::new_from_byte(TokenType::LBRACE, self.ch),
+            '}' => Token::new_from_byte(TokenType::RBRACE, self.ch),
+            '\0' => Token::new_from_byte(TokenType::EOF, 0),
+            _ => Token::new_from_byte(TokenType::ILLEGAL, self.ch),
         };
 
         self.read_char();

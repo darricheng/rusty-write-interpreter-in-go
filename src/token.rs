@@ -29,7 +29,13 @@ pub struct Token {
 }
 
 impl Token {
-    pub fn new(token_type: TokenType, byte: u8) -> Token {
+    pub fn new(token_type: TokenType, literal: String) -> Token {
+        Token {
+            token_type,
+            literal,
+        }
+    }
+    pub fn new_from_byte(token_type: TokenType, byte: u8) -> Token {
         let literal: String = from_utf8(&[byte]).unwrap().to_string();
         Token {
             token_type,
