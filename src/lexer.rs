@@ -67,7 +67,14 @@ mod tests {
 
     #[test]
     fn test_next_token() {
-        let input = "=+(){},;";
+        let input = r#"let five = 5;
+let ten = 10;
+
+let add = fn(x, y) {
+  x + y;
+};
+
+let result = add(five, ten);"#;
 
         let tests: Vec<Token> = vec![
             Token {
