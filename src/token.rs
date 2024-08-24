@@ -3,23 +3,40 @@ use std::str::{self, from_utf8};
 #[derive(Debug, PartialEq)]
 pub enum TokenType {
     ILLEGAL,
-    EOF,
+    EOF, // '\0'
+
     // Identifiers + literals
-    IDENT,
-    INT,
+    IDENT, // add, foobar, x, y, ...
+    INT,   // 942109437
+
     // Operators
-    ASSIGN,
-    PLUS,
+    ASSIGN,   // =
+    PLUS,     // +
+    MINUS,    // -
+    BANG,     // !
+    ASTERISK, // *
+    SLASH,    // /
+    LT,       // <
+    GT,       // >
+    EQ,       // ==
+    NOT_EQ,   // !=
+
     // Delimiters
-    COMMA,
-    SEMICOLON,
-    LPAREN,
-    RPAREN,
-    LBRACE,
-    RBRACE,
+    COMMA,     // ,
+    SEMICOLON, // ;
+    LPAREN,    // (
+    RPAREN,    // )
+    LBRACE,    // {
+    RBRACE,    // }
+
     // Keywords
-    FUNCTION,
-    LET,
+    FUNCTION, // fn
+    LET,      // let
+    TRUE,     // true
+    FALSE,    // false
+    IF,       // if
+    ELSE,     // else
+    RETURN,   // return
 }
 
 #[derive(Debug)]
