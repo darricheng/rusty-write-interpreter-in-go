@@ -77,42 +77,43 @@ let add = fn(x, y) {
 let result = add(five, ten);"#;
 
         let tests: Vec<Token> = vec![
-            Token {
-                token_type: TokenType::ASSIGN,
-                literal: "=".to_string(),
-            },
-            Token {
-                token_type: TokenType::PLUS,
-                literal: "+".to_string(),
-            },
-            Token {
-                token_type: TokenType::LPAREN,
-                literal: "(".to_string(),
-            },
-            Token {
-                token_type: TokenType::RPAREN,
-                literal: ")".to_string(),
-            },
-            Token {
-                token_type: TokenType::LBRACE,
-                literal: "{".to_string(),
-            },
-            Token {
-                token_type: TokenType::RBRACE,
-                literal: "}".to_string(),
-            },
-            Token {
-                token_type: TokenType::COMMA,
-                literal: ",".to_string(),
-            },
-            Token {
-                token_type: TokenType::SEMICOLON,
-                literal: ";".to_string(),
-            },
-            Token {
-                token_type: TokenType::EOF,
-                literal: "\0".to_string(),
-            },
+            Token::new_from_str(TokenType::LET, "let"),
+            Token::new_from_str(TokenType::IDENT, "five"),
+            Token::new_from_str(TokenType::ASSIGN, "="),
+            Token::new_from_str(TokenType::INT, "5"),
+            Token::new_from_str(TokenType::SEMICOLON, ";"),
+            Token::new_from_str(TokenType::LET, "let"),
+            Token::new_from_str(TokenType::IDENT, "ten"),
+            Token::new_from_str(TokenType::ASSIGN, "="),
+            Token::new_from_str(TokenType::INT, "10"),
+            Token::new_from_str(TokenType::SEMICOLON, ";"),
+            Token::new_from_str(TokenType::LET, "let"),
+            Token::new_from_str(TokenType::IDENT, "add"),
+            Token::new_from_str(TokenType::ASSIGN, "="),
+            Token::new_from_str(TokenType::FUNCTION, "fn"),
+            Token::new_from_str(TokenType::LPAREN, "("),
+            Token::new_from_str(TokenType::IDENT, "x"),
+            Token::new_from_str(TokenType::COMMA, ","),
+            Token::new_from_str(TokenType::IDENT, "y"),
+            Token::new_from_str(TokenType::RPAREN, ")"),
+            Token::new_from_str(TokenType::LBRACE, "{"),
+            Token::new_from_str(TokenType::IDENT, "x"),
+            Token::new_from_str(TokenType::PLUS, "+"),
+            Token::new_from_str(TokenType::IDENT, "y"),
+            Token::new_from_str(TokenType::SEMICOLON, ";"),
+            Token::new_from_str(TokenType::RBRACE, "}"),
+            Token::new_from_str(TokenType::SEMICOLON, ";"),
+            Token::new_from_str(TokenType::LET, "let"),
+            Token::new_from_str(TokenType::IDENT, "result"),
+            Token::new_from_str(TokenType::ASSIGN, "="),
+            Token::new_from_str(TokenType::IDENT, "add"),
+            Token::new_from_str(TokenType::LPAREN, "("),
+            Token::new_from_str(TokenType::IDENT, "five"),
+            Token::new_from_str(TokenType::COMMA, ","),
+            Token::new_from_str(TokenType::IDENT, "ten"),
+            Token::new_from_str(TokenType::RPAREN, ")"),
+            Token::new_from_str(TokenType::SEMICOLON, ";"),
+            Token::new_from_str(TokenType::EOF, "\0"),
         ];
 
         let mut l = Lexer::new(input.to_string());

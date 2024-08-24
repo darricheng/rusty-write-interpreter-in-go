@@ -29,7 +29,8 @@ pub struct Token {
 }
 
 impl Token {
-    pub fn new(token_type: TokenType, literal: String) -> Token {
+    pub fn new_from_str(token_type: TokenType, str: &str) -> Token {
+        let literal = str.to_string();
         Token {
             token_type,
             literal,
