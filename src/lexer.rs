@@ -8,6 +8,9 @@ use crate::token::*;
 /// the `position` pointer will remain at the start of the `let` keyword while
 /// the read_position pointer will carry on forwards to get the full picture of
 /// exactly what the token is.
+///
+/// Using u8 for the ch field means we only support ASCII. Supporting UTF-8 would
+/// require modifications to how individual characters are read.
 struct Lexer {
     input: String,
     position: usize,      // current position in input (points to current char)
