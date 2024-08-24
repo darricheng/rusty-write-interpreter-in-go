@@ -132,7 +132,14 @@ let add = fn(x, y) {
 
 let result = add(five, ten);
 !-/*5;
-5 < 10 > 5;"#;
+5 < 10 > 5;
+
+if (5 < 10) {
+    return true;
+} else {
+    return false;
+}
+"#;
 
         let tests: Vec<Token> = vec![
             Token::new_from_str(TokenType::LET, "let"),
@@ -183,6 +190,31 @@ let result = add(five, ten);
             Token::new_from_str(TokenType::GT, ">"),
             Token::new_from_str(TokenType::INT, "5"),
             Token::new_from_str(TokenType::SEMICOLON, ";"),
+            Token::new_from_str(TokenType::IF, "if"),
+            Token::new_from_str(TokenType::LPAREN, "("),
+            Token::new_from_str(TokenType::INT, "5"),
+            Token::new_from_str(TokenType::LT, "<"),
+            Token::new_from_str(TokenType::INT, "10"),
+            Token::new_from_str(TokenType::RPAREN, ")"),
+            Token::new_from_str(TokenType::LBRACE, "{"),
+            Token::new_from_str(TokenType::RETURN, "return"),
+            Token::new_from_str(TokenType::TRUE, "true"),
+            Token::new_from_str(TokenType::SEMICOLON, ";"),
+            Token::new_from_str(TokenType::RBRACE, "}"),
+            Token::new_from_str(TokenType::ELSE, "else"),
+            Token::new_from_str(TokenType::LBRACE, "{"),
+            Token::new_from_str(TokenType::RETURN, "return"),
+            Token::new_from_str(TokenType::FALSE, "false"),
+            Token::new_from_str(TokenType::SEMICOLON, ";"),
+            Token::new_from_str(TokenType::RBRACE, "}"),
+            // Token::new_from_str(TokenType::INT, "10"),
+            // Token::new_from_str(TokenType::EQ, "=="),
+            // Token::new_from_str(TokenType::INT, "10"),
+            // Token::new_from_str(TokenType::SEMICOLON, ";"),
+            // Token::new_from_str(TokenType::INT, "10"),
+            // Token::new_from_str(TokenType::NOT_EQ, "!="),
+            // Token::new_from_str(TokenType::INT, "9"),
+            // Token::new_from_str(TokenType::SEMICOLON, ";"),
             Token::new_from_str(TokenType::EOF, "\0"),
         ];
 
