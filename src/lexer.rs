@@ -22,10 +22,9 @@ impl Lexer {
     fn new(input: String) -> Lexer {
         let mut l = Lexer {
             input,
-            // TODO: not sure if the below default initialisations work
             position: 0,
             read_position: 0,
-            ch: 0,
+            ch: 0, // null byte in ascii
         };
         l.read_char();
         return l;
