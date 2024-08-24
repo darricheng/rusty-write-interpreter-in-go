@@ -94,6 +94,10 @@ fn is_letter(ch: u8) -> bool {
     ch == 95 // underscore
 }
 
+fn is_digit(ch: u8) -> bool {
+    48 <= ch && ch <= 57 // 0 to 9
+}
+
 #[cfg(test)]
 mod tests {
     use crate::lexer::Lexer;
