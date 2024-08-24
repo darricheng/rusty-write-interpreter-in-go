@@ -109,7 +109,7 @@ mod tests {
             },
         ];
 
-        let l = Lexer::new(input.to_string());
+        let mut l = Lexer::new(input.to_string());
 
         for expected_token in tests {
             let tok: Token = l.next_token();
