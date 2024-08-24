@@ -139,6 +139,9 @@ if (5 < 10) {
 } else {
     return false;
 }
+
+10 == 10;
+10 != 9;
 "#;
 
         let tests: Vec<Token> = vec![
@@ -207,14 +210,14 @@ if (5 < 10) {
             Token::new_from_str(TokenType::FALSE, "false"),
             Token::new_from_str(TokenType::SEMICOLON, ";"),
             Token::new_from_str(TokenType::RBRACE, "}"),
-            // Token::new_from_str(TokenType::INT, "10"),
-            // Token::new_from_str(TokenType::EQ, "=="),
-            // Token::new_from_str(TokenType::INT, "10"),
-            // Token::new_from_str(TokenType::SEMICOLON, ";"),
-            // Token::new_from_str(TokenType::INT, "10"),
-            // Token::new_from_str(TokenType::NOT_EQ, "!="),
-            // Token::new_from_str(TokenType::INT, "9"),
-            // Token::new_from_str(TokenType::SEMICOLON, ";"),
+            Token::new_from_str(TokenType::INT, "10"),
+            Token::new_from_str(TokenType::EQ, "=="),
+            Token::new_from_str(TokenType::INT, "10"),
+            Token::new_from_str(TokenType::SEMICOLON, ";"),
+            Token::new_from_str(TokenType::INT, "10"),
+            Token::new_from_str(TokenType::NOT_EQ, "!="),
+            Token::new_from_str(TokenType::INT, "9"),
+            Token::new_from_str(TokenType::SEMICOLON, ";"),
             Token::new_from_str(TokenType::EOF, "\0"),
         ];
 
