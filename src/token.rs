@@ -1,7 +1,4 @@
-use std::{
-    char,
-    str::{self, from_utf8},
-};
+use std::str::{self, from_utf8};
 
 pub type TokenType<'a> = &'a str;
 
