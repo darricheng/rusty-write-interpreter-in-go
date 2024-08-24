@@ -31,7 +31,7 @@ impl Lexer {
     }
 
     fn read_char(&mut self) {
-        if self.read_position >= self.input.len().try_into().unwrap() {
+        if self.read_position >= self.input.len() {
             self.ch = 0;
         } else {
             self.ch = self.input.as_bytes()[self.read_position];
