@@ -43,4 +43,12 @@ impl Token {
             literal,
         }
     }
+
+    pub fn lookup_ident(ident: &str) -> TokenType {
+        match ident {
+            "fn" => TokenType::FUNCTION,
+            "let" => TokenType::LET,
+            _ => TokenType::IDENT,
+        }
+    }
 }

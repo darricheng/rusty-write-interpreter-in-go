@@ -1,5 +1,11 @@
 use crate::token::*;
 
+fn is_letter(ch: u8) -> bool {
+    97 <= ch && ch <= 122 || // lowercase
+    65 <= ch && ch <= 90 || // uppercase
+    ch == 95 // underscore
+}
+
 /// Lexer struct that will convert an input string into tokens.
 ///
 /// `position` and `read_position` will be used to index into the input string.
@@ -40,6 +46,15 @@ impl Lexer {
         self.read_position += 1;
     }
 
+    fn read_identifier(&mut self) -> &str {
+        let position = self.position;
+        while is_letter(self.ch) {
+            self.read_char();
+        }
+
+        &self.input[position..self.position]
+    }
+
     fn next_token(&mut self) -> Token {
         let tok: Token = match self.ch as char {
             '=' => Token::new_from_byte(TokenType::ASSIGN, self.ch),
@@ -51,7 +66,14 @@ impl Lexer {
             '{' => Token::new_from_byte(TokenType::LBRACE, self.ch),
             '}' => Token::new_from_byte(TokenType::RBRACE, self.ch),
             '\0' => Token::new_from_byte(TokenType::EOF, 0),
-            _ => Token::new_from_byte(TokenType::ILLEGAL, self.ch),
+            _ => {
+                if is_letter(self.ch) {
+                    let literal = self.read_identifier();
+                    return Token::new_from_str(Token::lookup_ident(literal), literal);
+                } else {
+                    Token::new_from_byte(TokenType::ILLEGAL, self.ch)
+                }
+            }
         };
 
         self.read_char();
