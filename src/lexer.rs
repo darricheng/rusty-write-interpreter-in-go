@@ -17,13 +17,15 @@ struct Lexer {
 
 impl Lexer {
     fn new(input: String) -> Lexer {
-        Lexer {
+        let mut l = Lexer {
             input,
             // TODO: not sure if the below default initialisations work
             position: 0,
             read_position: 0,
             ch: 0,
-        }
+        };
+        l.read_char();
+        return l;
     }
 
     fn read_char(&mut self) {
