@@ -6,6 +6,15 @@ pub struct Token<'a> {
     pub literal: String,
 }
 
+impl<'a> Token<'_> {
+    pub fn new(token_type: TokenType, literal: String) -> Token {
+        Token {
+            token_type,
+            literal,
+        }
+    }
+}
+
 pub const ILLEGAL: &str = "ILLEGAL";
 pub const EOF: &str = "EOF";
 

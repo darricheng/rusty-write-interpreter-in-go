@@ -40,6 +40,21 @@ impl Lexer {
         self.position = self.read_position;
         self.read_position += 1;
     }
+
+    fn next_token(&mut self) {
+        let tok: Token = match self.ch as char {
+            '=' => Token::new(ASSIGN, self.ch.to_string()),
+            ';' => Token::new(SEMICOLON, self.ch.to_string()),
+            '(' => Token::new(LPAREN, self.ch.to_string()),
+            ')' => Token::new(RPAREN, self.ch.to_string()),
+            ',' => Token::new(COMMA, self.ch.to_string()),
+            '+' => Token::new(PLUS, self.ch.to_string()),
+            '{' => Token::new(LBRACE, self.ch.to_string()),
+            '}' => Token::new(RBRACE, self.ch.to_string()),
+            '\0' => Token::new(EOF, "".to_string()),
+            _ => Token::new(ILLEGAL, self.ch.to_string()),
+        };
+    }
 }
 
 #[cfg(test)]
