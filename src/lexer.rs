@@ -43,16 +43,16 @@ impl Lexer {
 
     fn next_token(&mut self) -> Token {
         let tok: Token = match self.ch as char {
-            '=' => Token::new(ASSIGN, self.ch),
-            ';' => Token::new(SEMICOLON, self.ch),
-            '(' => Token::new(LPAREN, self.ch),
-            ')' => Token::new(RPAREN, self.ch),
-            ',' => Token::new(COMMA, self.ch),
-            '+' => Token::new(PLUS, self.ch),
-            '{' => Token::new(LBRACE, self.ch),
-            '}' => Token::new(RBRACE, self.ch),
-            '\0' => Token::new(EOF, 0),
-            _ => Token::new(ILLEGAL, self.ch),
+            '=' => Token::new(TokenType::ASSIGN, self.ch),
+            ';' => Token::new(TokenType::SEMICOLON, self.ch),
+            '(' => Token::new(TokenType::LPAREN, self.ch),
+            ')' => Token::new(TokenType::RPAREN, self.ch),
+            ',' => Token::new(TokenType::COMMA, self.ch),
+            '+' => Token::new(TokenType::PLUS, self.ch),
+            '{' => Token::new(TokenType::LBRACE, self.ch),
+            '}' => Token::new(TokenType::RBRACE, self.ch),
+            '\0' => Token::new(TokenType::EOF, 0),
+            _ => Token::new(TokenType::ILLEGAL, self.ch),
         };
 
         self.read_char();
@@ -72,39 +72,39 @@ mod tests {
 
         let tests: Vec<Token> = vec![
             Token {
-                token_type: ASSIGN,
+                token_type: TokenType::ASSIGN,
                 literal: "=".to_string(),
             },
             Token {
-                token_type: PLUS,
+                token_type: TokenType::PLUS,
                 literal: "+".to_string(),
             },
             Token {
-                token_type: LPAREN,
+                token_type: TokenType::LPAREN,
                 literal: "(".to_string(),
             },
             Token {
-                token_type: RPAREN,
+                token_type: TokenType::RPAREN,
                 literal: ")".to_string(),
             },
             Token {
-                token_type: LBRACE,
+                token_type: TokenType::LBRACE,
                 literal: "{".to_string(),
             },
             Token {
-                token_type: RBRACE,
+                token_type: TokenType::RBRACE,
                 literal: "}".to_string(),
             },
             Token {
-                token_type: COMMA,
+                token_type: TokenType::COMMA,
                 literal: ",".to_string(),
             },
             Token {
-                token_type: SEMICOLON,
+                token_type: TokenType::SEMICOLON,
                 literal: ";".to_string(),
             },
             Token {
-                token_type: EOF,
+                token_type: TokenType::EOF,
                 literal: "\0".to_string(),
             },
         ];
@@ -116,12 +116,12 @@ mod tests {
 
             assert_eq!(
                 expected_token.token_type, tok.token_type,
-                "token_type wrong, expected {}, got {}",
+                "token_type wrong, expected {:?}, got {:?}",
                 expected_token.token_type, tok.token_type
             );
             assert_eq!(
                 expected_token.literal, tok.literal,
-                "literal wrong, expected {}, got {}",
+                "literal wrong, expected {:?}, got {:?}",
                 expected_token.token_type, tok.token_type
             );
         }

@@ -1,14 +1,34 @@
 use std::str::{self, from_utf8};
 
-pub type TokenType<'a> = &'a str;
+#[derive(Debug, PartialEq)]
+pub enum TokenType {
+    ILLEGAL,
+    EOF,
+    // Identifiers + literals
+    IDENT,
+    INT,
+    // Operators
+    ASSIGN,
+    PLUS,
+    // Delimiters
+    COMMA,
+    SEMICOLON,
+    LPAREN,
+    RPAREN,
+    LBRACE,
+    RBRACE,
+    // Keywords
+    FUNCTION,
+    LET,
+}
 
 #[derive(Debug)]
-pub struct Token<'a> {
-    pub token_type: TokenType<'a>,
+pub struct Token {
+    pub token_type: TokenType,
     pub literal: String,
 }
 
-impl<'a> Token<'_> {
+impl Token {
     pub fn new(token_type: TokenType, byte: u8) -> Token {
         let literal: String = from_utf8(&[byte]).unwrap().to_string();
         Token {
@@ -17,26 +37,3 @@ impl<'a> Token<'_> {
         }
     }
 }
-
-pub const ILLEGAL: &str = "ILLEGAL";
-pub const EOF: &str = "EOF";
-
-// Identifiers + literals
-pub const IDENT: &str = "IDENT";
-pub const INT: &str = "INT";
-
-pub const ASSIGN: &str = "=";
-pub const PLUS: &str = "+";
-
-// Delimiters
-pub const COMMA: &str = ",";
-pub const SEMICOLON: &str = ";";
-
-pub const LPAREN: &str = "(";
-pub const RPAREN: &str = ")";
-pub const LBRACE: &str = "{";
-pub const RBRACE: &str = "}";
-
-// Keywords
-pub const FUNCTION: &str = "FUNCTION";
-pub const LET: &str = "LET";
