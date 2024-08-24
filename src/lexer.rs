@@ -40,6 +40,14 @@ impl Lexer {
         self.read_position += 1;
     }
 
+    fn peek_char(&self) -> u8 {
+        if self.read_position >= self.input.len() {
+            0
+        } else {
+            self.input.as_bytes()[self.read_position]
+        }
+    }
+
     fn read_identifier(&mut self) -> &str {
         let position = self.position;
         while is_letter(self.ch) {
@@ -72,7 +80,26 @@ impl Lexer {
         self.skip_whitespace();
 
         let tok: Token = match self.ch as char {
-            '=' => Token::new_from_byte(TokenType::ASSIGN, self.ch),
+            '=' => {
+                // check for '=='
+                if self.peek_char() == 61 {
+                    let ch = self.ch as char;
+                    self.read_char();
+                    Token::new_from_str(TokenType::EQ, &format!("{}{}", ch, self.ch as char))
+                } else {
+                    Token::new_from_byte(TokenType::ASSIGN, self.ch)
+                }
+            }
+            '!' => {
+                // check for '!='
+                if self.peek_char() == 61 {
+                    let ch = self.ch as char;
+                    self.read_char();
+                    Token::new_from_str(TokenType::NOT_EQ, &format!("{}{}", ch, self.ch as char))
+                } else {
+                    Token::new_from_byte(TokenType::BANG, self.ch)
+                }
+            }
             ';' => Token::new_from_byte(TokenType::SEMICOLON, self.ch),
             '(' => Token::new_from_byte(TokenType::LPAREN, self.ch),
             ')' => Token::new_from_byte(TokenType::RPAREN, self.ch),
@@ -80,7 +107,6 @@ impl Lexer {
             '+' => Token::new_from_byte(TokenType::PLUS, self.ch),
             '{' => Token::new_from_byte(TokenType::LBRACE, self.ch),
             '}' => Token::new_from_byte(TokenType::RBRACE, self.ch),
-            '!' => Token::new_from_byte(TokenType::BANG, self.ch),
             '-' => Token::new_from_byte(TokenType::MINUS, self.ch),
             '/' => Token::new_from_byte(TokenType::SLASH, self.ch),
             '*' => Token::new_from_byte(TokenType::ASTERISK, self.ch),
