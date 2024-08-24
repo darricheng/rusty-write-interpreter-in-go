@@ -43,16 +43,16 @@ impl Lexer {
 
     fn next_token(&mut self) -> Token {
         let tok: Token = match self.ch as char {
-            '=' => Token::new(ASSIGN, self.ch.to_string()),
-            ';' => Token::new(SEMICOLON, self.ch.to_string()),
-            '(' => Token::new(LPAREN, self.ch.to_string()),
-            ')' => Token::new(RPAREN, self.ch.to_string()),
-            ',' => Token::new(COMMA, self.ch.to_string()),
-            '+' => Token::new(PLUS, self.ch.to_string()),
-            '{' => Token::new(LBRACE, self.ch.to_string()),
-            '}' => Token::new(RBRACE, self.ch.to_string()),
-            '\0' => Token::new(EOF, "".to_string()),
-            _ => Token::new(ILLEGAL, self.ch.to_string()),
+            '=' => Token::new(ASSIGN, self.ch),
+            ';' => Token::new(SEMICOLON, self.ch),
+            '(' => Token::new(LPAREN, self.ch),
+            ')' => Token::new(RPAREN, self.ch),
+            ',' => Token::new(COMMA, self.ch),
+            '+' => Token::new(PLUS, self.ch),
+            '{' => Token::new(LBRACE, self.ch),
+            '}' => Token::new(RBRACE, self.ch),
+            '\0' => Token::new(EOF, 0),
+            _ => Token::new(ILLEGAL, self.ch),
         };
 
         self.read_char();
@@ -105,7 +105,7 @@ mod tests {
             },
             Token {
                 token_type: EOF,
-                literal: "".to_string(),
+                literal: "\0".to_string(),
             },
         ];
 

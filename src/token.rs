@@ -1,3 +1,8 @@
+use std::{
+    char,
+    str::{self, from_utf8},
+};
+
 pub type TokenType<'a> = &'a str;
 
 #[derive(Debug)]
@@ -7,7 +12,8 @@ pub struct Token<'a> {
 }
 
 impl<'a> Token<'_> {
-    pub fn new(token_type: TokenType, literal: String) -> Token {
+    pub fn new(token_type: TokenType, byte: u8) -> Token {
+        let literal: String = from_utf8(&[byte]).unwrap().to_string();
         Token {
             token_type,
             literal,
