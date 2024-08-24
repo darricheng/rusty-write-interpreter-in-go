@@ -121,6 +121,11 @@ let result = add(five, ten);"#;
         for expected_token in tests {
             let tok: Token = l.next_token();
 
+            println!(
+                "TESTING: '{:?}' and '{:?}'",
+                expected_token.token_type, tok.token_type
+            );
+
             assert_eq!(
                 expected_token.token_type, tok.token_type,
                 "token_type wrong, expected {:?}, got {:?}",
@@ -129,6 +134,11 @@ let result = add(five, ten);"#;
             assert_eq!(
                 expected_token.literal, tok.literal,
                 "literal wrong, expected {:?}, got {:?}",
+                expected_token.token_type, tok.token_type
+            );
+
+            println!(
+                "PASSED: '{:?}' and '{:?}'",
                 expected_token.token_type, tok.token_type
             );
         }
