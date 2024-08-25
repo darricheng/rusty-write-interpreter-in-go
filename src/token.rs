@@ -2,41 +2,41 @@ use std::str::{self, from_utf8};
 
 #[derive(Debug, PartialEq)]
 pub enum TokenType {
-    ILLEGAL,
-    EOF, // '\0'
+    Illegal,
+    Eof, // '\0'
 
     // Identifiers + literals
-    IDENT, // add, foobar, x, y, ...
-    INT,   // 942109437
+    Ident, // add, foobar, x, y, ...
+    Int,   // 942109437
 
     // Operators
-    ASSIGN,   // =
-    PLUS,     // +
-    MINUS,    // -
-    BANG,     // !
-    ASTERISK, // *
-    SLASH,    // /
-    LT,       // <
-    GT,       // >
-    EQ,       // ==
-    NOT_EQ,   // !=
+    Assign,   // =
+    Plus,     // +
+    Minus,    // -
+    Bang,     // !
+    Asterisk, // *
+    Slash,    // /
+    Lt,       // <
+    Gt,       // >
+    Eq,       // ==
+    NotEq,    // !=
 
     // Delimiters
-    COMMA,     // ,
-    SEMICOLON, // ;
-    LPAREN,    // (
-    RPAREN,    // )
-    LBRACE,    // {
-    RBRACE,    // }
+    Comma,     // ,
+    Semicolon, // ;
+    LParen,    // (
+    RParen,    // )
+    LBrace,    // {
+    RBrace,    // }
 
     // Keywords
-    FUNCTION, // fn
-    LET,      // let
-    TRUE,     // true
-    FALSE,    // false
-    IF,       // if
-    ELSE,     // else
-    RETURN,   // return
+    Function, // fn
+    Let,      // let
+    True,     // true
+    False,    // false
+    If,       // if
+    Else,     // else
+    Return,   // return
 }
 
 #[derive(Debug)]
@@ -63,14 +63,14 @@ impl Token {
 
     pub fn lookup_ident(ident: &str) -> TokenType {
         match ident {
-            "fn" => TokenType::FUNCTION,
-            "let" => TokenType::LET,
-            "true" => TokenType::TRUE,
-            "false" => TokenType::FALSE,
-            "if" => TokenType::IF,
-            "else" => TokenType::ELSE,
-            "return" => TokenType::RETURN,
-            _ => TokenType::IDENT,
+            "fn" => TokenType::Function,
+            "let" => TokenType::Let,
+            "true" => TokenType::True,
+            "false" => TokenType::False,
+            "if" => TokenType::If,
+            "else" => TokenType::Else,
+            "return" => TokenType::Return,
+            _ => TokenType::Ident,
         }
     }
 }

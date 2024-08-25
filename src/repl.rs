@@ -22,7 +22,7 @@ pub fn start() {
 
         loop {
             let tok = l.next_token();
-            if tok.token_type == TokenType::EOF {
+            if tok.token_type == TokenType::Eof {
                 break;
             }
             println!("{:?}", tok);
