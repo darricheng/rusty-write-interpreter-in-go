@@ -6,6 +6,8 @@ const PROMPT: &str = ">> ";
 pub fn start() {
     let mut stdout = stdout();
 
+    println!("Rusty Monkey Programming Languague v0.1.0");
+
     loop {
         print!("{}", PROMPT);
         stdout.flush().unwrap();
