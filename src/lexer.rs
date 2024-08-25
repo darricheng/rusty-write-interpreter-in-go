@@ -11,7 +11,7 @@ use crate::token::*;
 ///
 /// Using u8 for the ch field means we only support ASCII. Supporting UTF-8 would
 /// require modifications to how individual characters are read.
-struct Lexer {
+pub struct Lexer {
     input: String,
     position: usize,      // current position in input (points to current char)
     read_position: usize, // current reading position in input (after current char)
@@ -19,7 +19,7 @@ struct Lexer {
 }
 
 impl Lexer {
-    fn new(input: String) -> Lexer {
+    pub fn new(input: String) -> Lexer {
         let mut l = Lexer {
             input,
             position: 0,
@@ -76,7 +76,7 @@ impl Lexer {
         }
     }
 
-    fn next_token(&mut self) -> Token {
+    pub fn next_token(&mut self) -> Token {
         self.skip_whitespace();
 
         let tok: Token = match self.ch as char {
