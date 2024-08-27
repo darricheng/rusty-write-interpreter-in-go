@@ -3,5 +3,5 @@
 version = 3
 
 [[package]]
-name = "write-interpreter-in-go"
+name = "rusty-write-interpreter-in-go"
 version = "0.1.0"
