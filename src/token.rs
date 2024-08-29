@@ -1,6 +1,6 @@
 use std::str::{self, from_utf8};
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum TokenType {
     Illegal,
     Eof, // '\0'
@@ -39,7 +39,7 @@ pub enum TokenType {
     Return,   // return
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Token {
     pub token_type: TokenType,
     pub literal: String,
@@ -58,6 +58,12 @@ impl Token {
         Token {
             token_type,
             literal,
+        }
+    }
+    pub fn new_placeholder() -> Token {
+        Token {
+            token_type: TokenType::Illegal,
+            literal: String::new(),
         }
     }
 

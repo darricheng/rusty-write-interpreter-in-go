@@ -12,7 +12,7 @@ trait Expression: Node {
     fn expression_node(&self) {}
 }
 
-struct Program {
+pub struct Program {
     statements: Vec<Box<dyn Statement>>,
 }
 impl Node for Program {
