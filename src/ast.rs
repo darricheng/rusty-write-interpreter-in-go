@@ -8,7 +8,12 @@ pub trait Node {
 pub struct StatementData {
     pub token: Token,
     pub name: Identifier,
-    pub value: Expressions,
+    pub value: Option<Expression>, // TODO: temp Option until we parse expressions in Let
+}
+impl StatementData {
+    pub fn new(token: Token, name: Identifier, value: Option<Expression>) -> StatementData {
+        StatementData { token, name, value }
+    }
 }
 
 #[derive(Debug)]
@@ -29,6 +34,11 @@ pub struct Identifier {
     token: Token,
     pub value: String,
 }
+impl Identifier {
+    pub fn new(token: Token, value: String) -> Identifier {
+        Identifier { token, value }
+    }
+}
 impl Node for Identifier {
     fn token_literal(&self) -> String {
         self.token.literal.clone()
@@ -36,20 +46,27 @@ impl Node for Identifier {
 }
 
 #[derive(Debug)]
-pub enum Expressions {
+pub enum Expression {
     Identifier(Identifier),
 }
 
-impl Node for Expressions {
+impl Node for Expression {
     fn token_literal(&self) -> String {
         match self {
-            Expressions::Identifier(i) => i.token.literal.clone(),
+            Expression::Identifier(i) => i.token.literal.clone(),
         }
     }
 }
 
 pub struct Program {
     pub statements: Vec<Statement>,
+}
+impl Program {
+    pub fn new() -> Program {
+        Program {
+            statements: Vec::new(),
+        }
+    }
 }
 impl Node for Program {
     fn token_literal(&self) -> String {

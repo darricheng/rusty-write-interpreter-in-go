@@ -1,4 +1,5 @@
-use crate::ast::{self, Program};
+use crate::ast::{self, Identifier, Program, Statement, StatementData};
+use crate::token::TokenType;
 use crate::{lexer::Lexer, token::Token};
 
 struct Parser {
@@ -22,7 +23,68 @@ impl Parser {
     }
 
     fn parse_program(&mut self) -> Result<Program, &str> {
-        todo!()
+        let mut program = Program::new();
+
+        while self.current_token.token_type != TokenType::Eof {
+            let statement = self.parse_statement();
+            if let Some(stmt) = statement {
+                program.statements.push(stmt);
+            }
+            self.next_token();
+        }
+
+        Ok(program)
+    }
+
+    fn parse_statement(&mut self) -> Option<Statement> {
+        match self.current_token.token_type {
+            TokenType::Let => self.parse_let_statement(),
+            _ => None,
+        }
+    }
+
+    fn parse_let_statement(&mut self) -> Option<Statement> {
+        let let_token = self.current_token.clone();
+
+        if !self.expect_peek(TokenType::Ident) {
+            return None;
+        }
+
+        let statement_name = Identifier::new(
+            self.current_token.clone(),
+            self.current_token.literal.clone(),
+        );
+
+        if !self.expect_peek(TokenType::Assign) {
+            return None;
+        }
+
+        // TODO: Skipping the expressions until we encounter
+        // a semicolon
+        while !self.cur_token_is(TokenType::Semicolon) {
+            self.next_token();
+        }
+
+        let statement = Statement::Let(StatementData::new(let_token.clone(), statement_name, None));
+
+        Some(statement)
+    }
+
+    fn cur_token_is(&self, t: TokenType) -> bool {
+        self.current_token.token_type == t
+    }
+
+    fn peek_token_is(&self, t: TokenType) -> bool {
+        self.peek_token.token_type == t
+    }
+
+    fn expect_peek(&mut self, t: TokenType) -> bool {
+        if self.peek_token_is(t) {
+            self.next_token();
+            return true;
+        }
+
+        false
     }
 }
 
@@ -90,6 +152,7 @@ let foobar = 838383;
                 );
                 return false;
             }
+            println!("PASSED: {:?}", statement_data);
             return true;
         }
 
