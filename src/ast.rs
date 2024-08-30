@@ -1,19 +1,55 @@
 use crate::token::{Token, TokenType};
 
-trait Node {
+pub trait Node {
     fn token_literal(&self) -> String;
 }
 
-trait Statement: Node {
-    fn statement_node(&self) {}
+#[derive(Debug)]
+pub struct StatementData {
+    pub token: Token,
+    pub name: Identifier,
+    pub value: Expressions,
 }
 
-trait Expression: Node {
-    fn expression_node(&self) {}
+#[derive(Debug)]
+pub enum Statement {
+    Let(StatementData),
+}
+
+impl Node for Statement {
+    fn token_literal(&self) -> String {
+        match self {
+            Statement::Let(s) => s.token.literal.clone(),
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct Identifier {
+    token: Token,
+    pub value: String,
+}
+impl Node for Identifier {
+    fn token_literal(&self) -> String {
+        self.token.literal.clone()
+    }
+}
+
+#[derive(Debug)]
+pub enum Expressions {
+    Identifier(Identifier),
+}
+
+impl Node for Expressions {
+    fn token_literal(&self) -> String {
+        match self {
+            Expressions::Identifier(i) => i.token.literal.clone(),
+        }
+    }
 }
 
 pub struct Program {
-    statements: Vec<Box<dyn Statement>>,
+    pub statements: Vec<Statement>,
 }
 impl Node for Program {
     fn token_literal(&self) -> String {
@@ -22,32 +58,5 @@ impl Node for Program {
         } else {
             String::new()
         }
-    }
-}
-
-struct LetStatement {
-    token: Token,
-    name: Identifier,
-    value: dyn Expression,
-}
-impl Statement for LetStatement {
-    fn statement_node(&self) {}
-}
-impl Node for LetStatement {
-    fn token_literal(&self) -> String {
-        self.token.literal.clone()
-    }
-}
-
-struct Identifier {
-    token: Token,
-    value: String,
-}
-impl Expression for Identifier {
-    fn expression_node(&self) {}
-}
-impl Node for Identifier {
-    fn token_literal(&self) -> String {
-        self.token.literal.clone()
     }
 }
