@@ -25,7 +25,7 @@ impl Parser {
     fn parse_program(&mut self) -> Result<Program, &str> {
         let mut program = Program::new();
 
-        while self.current_token.token_type != TokenType::Eof {
+        while !self.cur_token_is(TokenType::Eof) {
             let statement = self.parse_statement();
             if let Some(stmt) = statement {
                 program.statements.push(stmt);
