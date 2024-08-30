@@ -1,11 +1,20 @@
-use crate::ast::{self, Identifier, Program, Statement, StatementData};
+use crate::ast::{Identifier, Program, Statement, StatementData};
 use crate::token::TokenType;
 use crate::{lexer::Lexer, token::Token};
+
+#[derive(Clone)]
+struct ParserError(String);
+impl ParserError {
+    fn new(error: String) -> ParserError {
+        ParserError(error)
+    }
+}
 
 struct Parser {
     l: Lexer,
     current_token: Token,
     peek_token: Token,
+    errors: Vec<ParserError>,
 }
 
 impl Parser {
@@ -14,7 +23,21 @@ impl Parser {
             l,
             current_token: Token::new_placeholder(),
             peek_token: Token::new_placeholder(),
+            errors: Vec::new(),
         }
+    }
+
+    fn errors(&self) -> Vec<ParserError> {
+        self.errors.clone()
+    }
+
+    fn peek_error(&mut self, t: TokenType) {
+        let error_message = format!(
+            "Expected next token to be {:?}, got {:?} instead.",
+            { t },
+            self.peek_token.token_type
+        );
+        self.errors.push(ParserError::new(error_message));
     }
 
     fn next_token(&mut self) {
@@ -22,7 +45,7 @@ impl Parser {
         self.peek_token = self.l.next_token();
     }
 
-    fn parse_program(&mut self) -> Result<Program, &str> {
+    fn parse_program(&mut self) -> Program {
         let mut program = Program::new();
 
         while !self.cur_token_is(TokenType::Eof) {
@@ -33,7 +56,7 @@ impl Parser {
             self.next_token();
         }
 
-        Ok(program)
+        program
     }
 
     fn parse_statement(&mut self) -> Option<Statement> {
@@ -79,10 +102,12 @@ impl Parser {
     }
 
     fn expect_peek(&mut self, t: TokenType) -> bool {
-        if self.peek_token_is(t) {
+        if self.peek_token_is(t.clone()) {
             self.next_token();
             return true;
         }
+
+        self.peek_error(t);
 
         false
     }
@@ -90,7 +115,7 @@ impl Parser {
 
 #[cfg(test)]
 mod tests {
-    use crate::ast::{self, Node, Statement};
+    use crate::ast::{Node, Statement};
     use crate::lexer::Lexer;
     use crate::parser::Parser;
 
@@ -99,16 +124,21 @@ mod tests {
     #[test]
     fn test_let_statements() {
         let input = r#"
-let x = 5;
-let y = 10;
-let foobar = 838383;
+let x 5;
+let = 10;
+let 838383;
 "#;
+        //         let input = r#"
+        // let x = 5;
+        // let y = 10;
+        // let foobar = 838383;
+        // "#;
         let mut l = Lexer::new(input.to_string());
         let mut p = Parser::new(l);
 
-        let program = p
-            .parse_program()
-            .expect("parse_program() returned an error");
+        let program = p.parse_program();
+
+        check_parser_errors(p);
 
         assert!(
             program.statements.len() == 3,
@@ -131,6 +161,19 @@ let foobar = 838383;
             assert!(test_let_statement(statement, expected_identifier.0.clone()));
         }
     }
+
+    fn check_parser_errors(p: Parser) {
+        let errors = p.errors();
+        if errors.len() == 0 {
+            return;
+        }
+        println!("Parser has {} errors.", errors.len());
+        errors.iter().for_each(|err| {
+            println!("Parser error: {}", err.0);
+        });
+        panic!()
+    }
+
     fn test_let_statement(s: &Statement, name: String) -> bool {
         if s.token_literal() != "let" {
             println!("token_literal is not 'let', got {}", s.token_literal());
