@@ -252,10 +252,10 @@ if (5 < 10) {
         for expected_token in tests {
             let tok: Token = l.next_token();
 
-            println!(
-                "TESTING: '{:?}' and '{:?}'",
-                expected_token.token_type, tok.token_type
-            );
+            // println!(
+            //     "TESTING: '{:?}' and '{:?}'",
+            //     expected_token.token_type, tok.token_type
+            // );
 
             assert_eq!(
                 expected_token.token_type, tok.token_type,
@@ -268,10 +268,10 @@ if (5 < 10) {
                 expected_token.token_type, tok.token_type
             );
 
-            println!(
-                "PASSED: '{:?}' and '{:?}'",
-                expected_token.token_type, tok.token_type
-            );
+            // println!(
+            //     "PASSED: '{:?}' and '{:?}'",
+            //     expected_token.token_type, tok.token_type
+            // );
         }
     }
 }
