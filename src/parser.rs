@@ -121,6 +121,18 @@ mod tests {
 
     struct ExpectedIdentifier(String);
 
+    fn check_parser_errors(p: Parser) {
+        let errors = p.errors();
+        if errors.len() == 0 {
+            return;
+        }
+        println!("Parser has {} errors.", errors.len());
+        errors.iter().for_each(|err| {
+            println!("Parser error: {}", err.0);
+        });
+        panic!()
+    }
+
     #[test]
     fn test_let_statements() {
         let input = r#"
@@ -160,18 +172,6 @@ let 838383;
 
             assert!(test_let_statement(statement, expected_identifier.0.clone()));
         }
-    }
-
-    fn check_parser_errors(p: Parser) {
-        let errors = p.errors();
-        if errors.len() == 0 {
-            return;
-        }
-        println!("Parser has {} errors.", errors.len());
-        errors.iter().for_each(|err| {
-            println!("Parser error: {}", err.0);
-        });
-        panic!()
     }
 
     fn test_let_statement(s: &Statement, name: String) -> bool {
