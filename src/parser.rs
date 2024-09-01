@@ -115,7 +115,7 @@ impl Parser {
 
 #[cfg(test)]
 mod tests {
-    use crate::ast::{Node, Statement};
+    use crate::ast::{Node, Program, Statement};
     use crate::lexer::Lexer;
     use crate::parser::Parser;
 
@@ -135,17 +135,17 @@ mod tests {
 
     #[test]
     fn test_let_statements() {
-        let input = r#"
-let x 5;
-let = 10;
-let 838383;
-"#;
         //         let input = r#"
-        // let x = 5;
-        // let y = 10;
-        // let foobar = 838383;
+        // let x 5;
+        // let = 10;
+        // let 838383;
         // "#;
-        let mut l = Lexer::new(input.to_string());
+        let input = r#"
+let x = 5;
+let y = 10;
+let foobar = 838383;
+"#;
+        let l = Lexer::new(input.to_string());
         let mut p = Parser::new(l);
 
         let program = p.parse_program();
@@ -195,11 +195,52 @@ let 838383;
                 );
                 return false;
             }
-            println!("PASSED: {:?}", statement_data);
             return true;
         }
 
         println!("Statement is not Let, got {:?}", s);
         return false;
+    }
+
+    #[test]
+    fn test_return_statements() {
+        let input = r#"
+return 5;
+return 10;
+return 993322;
+"#;
+
+        let l = Lexer::new(input.to_string());
+        let mut p = Parser::new(l);
+
+        let program = p.parse_program();
+        check_parser_errors(p);
+
+        assert!(
+            program.statements.len() == 3,
+            "Program.statements does not contain 3 statements, got: {}",
+            program.statements.len()
+        );
+
+        let mut fail_count = 0;
+
+        program.statements.iter().for_each(|statement| {
+            if let Statement::Return(return_statement) = statement {
+                if return_statement.token_literal() != "return" {
+                    println!(
+                        "return_statement.token_literal not 'return', got: {}",
+                        return_statement.token_literal()
+                    );
+                    fail_count += 1;
+                }
+            } else {
+                println!("statement is not a ReturnStatement. Got {:?}", statement);
+                fail_count += 1;
+            }
+        });
+        assert_eq!(
+            fail_count, 0,
+            "More than one return statement test failed, check logs above this."
+        );
     }
 }
