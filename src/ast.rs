@@ -1,4 +1,4 @@
-use crate::token::{Token, TokenType};
+use crate::token::{self, Token, TokenType};
 
 pub trait Node {
     fn token_literal(&self) -> String;
@@ -19,7 +19,12 @@ impl LetStatement {
 #[derive(Debug)]
 pub struct ReturnStatement {
     token: Token,
-    return_value: Expression,
+    value: Expression,
+}
+impl ReturnStatement {
+    pub fn new(token: Token, value: Expression) -> ReturnStatement {
+        ReturnStatement { token, value }
+    }
 }
 
 #[derive(Debug)]
