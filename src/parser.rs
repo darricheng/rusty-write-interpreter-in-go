@@ -1,4 +1,4 @@
-use crate::ast::{IdentifierStruct, LetStatement, Program, Statement};
+use crate::ast::{IdentifierStruct, LetStatement, Program, ReturnStatement, Statement};
 use crate::token::TokenType;
 use crate::{lexer::Lexer, token::Token};
 
@@ -59,9 +59,29 @@ impl Parser {
         program
     }
 
+    fn cur_token_is(&self, t: TokenType) -> bool {
+        self.current_token.token_type == t
+    }
+
+    fn peek_token_is(&self, t: TokenType) -> bool {
+        self.peek_token.token_type == t
+    }
+
+    fn expect_peek(&mut self, t: TokenType) -> bool {
+        if self.peek_token_is(t.clone()) {
+            self.next_token();
+            return true;
+        }
+
+        self.peek_error(t);
+
+        false
+    }
+
     fn parse_statement(&mut self) -> Option<Statement> {
         match self.current_token.token_type {
             TokenType::Let => self.parse_let_statement(),
+            TokenType::Return => self.parse_return_statement(),
             _ => None,
         }
     }
@@ -93,23 +113,20 @@ impl Parser {
         Some(statement)
     }
 
-    fn cur_token_is(&self, t: TokenType) -> bool {
-        self.current_token.token_type == t
-    }
+    fn parse_return_statement(&mut self) -> Option<Statement> {
+        let return_token = self.current_token.clone();
 
-    fn peek_token_is(&self, t: TokenType) -> bool {
-        self.peek_token.token_type == t
-    }
+        self.next_token();
 
-    fn expect_peek(&mut self, t: TokenType) -> bool {
-        if self.peek_token_is(t.clone()) {
+        // TODO: Skipping the expressions until we encounter
+        // a semicolon
+        while !self.cur_token_is(TokenType::Semicolon) {
             self.next_token();
-            return true;
         }
 
-        self.peek_error(t);
+        let statement = Statement::Return(ReturnStatement::new(return_token.clone(), None));
 
-        false
+        Some(statement)
     }
 }
 

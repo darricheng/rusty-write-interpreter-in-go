@@ -19,10 +19,10 @@ impl LetStatement {
 #[derive(Debug)]
 pub struct ReturnStatement {
     token: Token,
-    value: Expression,
+    value: Option<Expression>, // TODO: temp Option until we parse expressions in Return
 }
 impl ReturnStatement {
-    pub fn new(token: Token, value: Expression) -> ReturnStatement {
+    pub fn new(token: Token, value: Option<Expression>) -> ReturnStatement {
         ReturnStatement { token, value }
     }
 }
