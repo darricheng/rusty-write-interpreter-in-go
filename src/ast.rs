@@ -17,14 +17,22 @@ impl LetStatement {
 }
 
 #[derive(Debug)]
+pub struct ReturnStatement {
+    token: Token,
+    return_value: Expression,
+}
+
+#[derive(Debug)]
 pub enum Statement {
     Let(LetStatement),
+    Return(ReturnStatement),
 }
 
 impl Node for Statement {
     fn token_literal(&self) -> String {
         match self {
             Statement::Let(s) => s.token.literal.clone(),
+            Statement::Return(s) => s.token.literal.clone(),
         }
     }
 }
