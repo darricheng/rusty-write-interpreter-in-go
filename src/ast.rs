@@ -5,20 +5,20 @@ pub trait Node {
 }
 
 #[derive(Debug)]
-pub struct StatementData {
+pub struct LetStatement {
     pub token: Token,
-    pub name: Identifier,
+    pub name: IdentifierStruct,
     pub value: Option<Expression>, // TODO: temp Option until we parse expressions in Let
 }
-impl StatementData {
-    pub fn new(token: Token, name: Identifier, value: Option<Expression>) -> StatementData {
-        StatementData { token, name, value }
+impl LetStatement {
+    pub fn new(token: Token, name: IdentifierStruct, value: Option<Expression>) -> LetStatement {
+        LetStatement { token, name, value }
     }
 }
 
 #[derive(Debug)]
 pub enum Statement {
-    Let(StatementData),
+    Let(LetStatement),
 }
 
 impl Node for Statement {
@@ -30,16 +30,16 @@ impl Node for Statement {
 }
 
 #[derive(Debug)]
-pub struct Identifier {
+pub struct IdentifierStruct {
     token: Token,
     pub value: String,
 }
-impl Identifier {
-    pub fn new(token: Token, value: String) -> Identifier {
-        Identifier { token, value }
+impl IdentifierStruct {
+    pub fn new(token: Token, value: String) -> IdentifierStruct {
+        IdentifierStruct { token, value }
     }
 }
-impl Node for Identifier {
+impl Node for IdentifierStruct {
     fn token_literal(&self) -> String {
         self.token.literal.clone()
     }
@@ -47,7 +47,7 @@ impl Node for Identifier {
 
 #[derive(Debug)]
 pub enum Expression {
-    Identifier(Identifier),
+    Identifier(IdentifierStruct),
 }
 
 impl Node for Expression {

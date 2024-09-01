@@ -1,4 +1,4 @@
-use crate::ast::{Identifier, Program, Statement, StatementData};
+use crate::ast::{IdentifierStruct, LetStatement, Program, Statement};
 use crate::token::TokenType;
 use crate::{lexer::Lexer, token::Token};
 
@@ -73,7 +73,7 @@ impl Parser {
             return None;
         }
 
-        let statement_name = Identifier::new(
+        let statement_name = IdentifierStruct::new(
             self.current_token.clone(),
             self.current_token.literal.clone(),
         );
@@ -88,7 +88,7 @@ impl Parser {
             self.next_token();
         }
 
-        let statement = Statement::Let(StatementData::new(let_token.clone(), statement_name, None));
+        let statement = Statement::Let(LetStatement::new(let_token.clone(), statement_name, None));
 
         Some(statement)
     }
