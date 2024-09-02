@@ -64,12 +64,16 @@ impl Node for Statement {
 #[derive(Debug)]
 pub struct LetStatement {
     pub token: Token,
-    pub name: IdentifierStruct,
+    pub name: Expression,          // Should only ever be Expression::Identifier
     pub value: Option<Expression>, // TODO: temp Option until we parse expressions in Let
 }
 impl LetStatement {
     pub fn new(token: Token, name: IdentifierStruct, value: Option<Expression>) -> LetStatement {
-        LetStatement { token, name, value }
+        LetStatement {
+            token,
+            name: Expression::Identifier(name),
+            value,
+        }
     }
 }
 
@@ -97,7 +101,13 @@ pub struct ExpressionStatement {
 pub enum Expression {
     Identifier(IdentifierStruct),
 }
-
+impl Expression {
+    pub fn get_expression(&self) -> IdentifierStruct {
+        match self {
+            Expression::Identifier(i) => i.clone(),
+        }
+    }
+}
 impl Node for Expression {
     fn token_literal(&self) -> String {
         match self {
@@ -106,12 +116,12 @@ impl Node for Expression {
     }
     fn string(&self) -> String {
         match self {
-            Expression::Identifier(i) => i.value,
+            Expression::Identifier(i) => i.value.clone(),
         }
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct IdentifierStruct {
     token: Token,
     pub value: String,
@@ -119,11 +129,6 @@ pub struct IdentifierStruct {
 impl IdentifierStruct {
     pub fn new(token: Token, value: String) -> IdentifierStruct {
         IdentifierStruct { token, value }
-    }
-}
-impl Node for IdentifierStruct {
-    fn token_literal(&self) -> String {
-        self.token.literal.clone()
     }
 }
 
