@@ -163,3 +163,45 @@ impl Node for Program {
         out
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{Expression, IdentifierStruct, LetStatement, Program, Statement};
+    use crate::{
+        ast::Node,
+        token::{Token, TokenType},
+    };
+
+    #[test]
+    fn test_string() {
+        let program = Program {
+            statements: vec![Statement::Let(LetStatement {
+                token: Token {
+                    token_type: TokenType::Let,
+                    literal: "let".to_string(),
+                },
+                name: Expression::Identifier(IdentifierStruct {
+                    token: Token {
+                        token_type: TokenType::Ident,
+                        literal: "myVar".to_string(),
+                    },
+                    value: "myVar".to_string(),
+                }),
+                value: Some(Expression::Identifier(IdentifierStruct {
+                    token: Token {
+                        token_type: TokenType::Ident,
+                        literal: "anotherVar".to_string(),
+                    },
+                    value: "anotherVar".to_string(),
+                })),
+            })],
+        };
+
+        assert_eq!(
+            program.string(),
+            "let myVar = anotherVar;",
+            "program.string() wrong. Got {}",
+            program.string()
+        );
+    }
+}
