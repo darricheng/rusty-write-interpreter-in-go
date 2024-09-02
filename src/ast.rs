@@ -33,7 +33,7 @@ impl Node for Statement {
                 out.push_str(" = ");
 
                 // TODO: to be taken out when we can fully build expressions
-                if let Some(val) = ls.value {
+                if let Some(val) = &ls.value {
                     out.push_str(&val.string());
                 }
                 out.push(';');
@@ -44,14 +44,14 @@ impl Node for Statement {
                 out.push(' ');
 
                 // TODO: to be taken out when we can fully build expressions
-                if let Some(val) = rs.value {
+                if let Some(val) = &rs.value {
                     out.push_str(&val.string());
                 }
                 out.push(';');
             }
             Statement::Expression(es) => {
                 // TODO: to be taken out when we can fully build expressions
-                if let Some(expression) = es.expression {
+                if let Some(expression) = &es.expression {
                     out.push_str(&expression.string());
                 }
             }
