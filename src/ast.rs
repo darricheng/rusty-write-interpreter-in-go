@@ -90,22 +90,9 @@ pub struct ExpressionStatement {
     expression: Option<Expression>, // TODO: temp Option until we parse expressions in Return
 }
 
-#[derive(Debug)]
-pub struct IdentifierStruct {
-    token: Token,
-    pub value: String,
-}
-impl IdentifierStruct {
-    pub fn new(token: Token, value: String) -> IdentifierStruct {
-        IdentifierStruct { token, value }
-    }
-}
-impl Node for IdentifierStruct {
-    fn token_literal(&self) -> String {
-        self.token.literal.clone()
-    }
-}
-
+/**************
+* Expressions *
+**************/
 #[derive(Debug)]
 pub enum Expression {
     Identifier(IdentifierStruct),
@@ -124,6 +111,25 @@ impl Node for Expression {
     }
 }
 
+#[derive(Debug)]
+pub struct IdentifierStruct {
+    token: Token,
+    pub value: String,
+}
+impl IdentifierStruct {
+    pub fn new(token: Token, value: String) -> IdentifierStruct {
+        IdentifierStruct { token, value }
+    }
+}
+impl Node for IdentifierStruct {
+    fn token_literal(&self) -> String {
+        self.token.literal.clone()
+    }
+}
+
+/**********
+* Program *
+**********/
 pub struct Program {
     pub statements: Vec<Statement>,
 }
