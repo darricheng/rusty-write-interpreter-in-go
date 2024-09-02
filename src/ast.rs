@@ -2,6 +2,7 @@ use crate::token::{self, Token, TokenType};
 
 pub trait Node {
     fn token_literal(&self) -> String;
+    fn string(&self) -> String;
 }
 
 /*************
@@ -21,6 +22,39 @@ impl Node for Statement {
             Statement::Return(s) => s.token.literal.clone(),
             Statement::Expression(s) => s.token.literal.clone(),
         }
+    }
+    fn string(&self) -> String {
+        let mut out = String::new();
+        match self {
+            Statement::Let(ls) => {
+                out.push_str(&self.token_literal());
+                out.push(' ');
+                out.push_str(&ls.name.string());
+                out.push_str(" = ");
+
+                if let Some(val) = ls.value {
+                    out.push_str(&val.string());
+                }
+                out.push(';');
+            }
+            Statement::Return(rs) => {
+                let mut out = String::new();
+                out.push_str(&self.token_literal());
+                out.push(' ');
+
+                if let Some(val) = rs.value {
+                    out.push_str(&val.string());
+                }
+                out.push(';');
+            }
+            Statement::Expression(es) => {
+                if let Some(expression) = es.expression {
+                    out.push_str(&expression.string());
+                }
+            }
+        }
+
+        out
     }
 }
 
@@ -50,7 +84,7 @@ impl ReturnStatement {
 #[derive(Debug)]
 pub struct ExpressionStatement {
     token: Token,
-    expression: Expression,
+    expression: Option<Expression>,
 }
 
 #[derive(Debug)]
@@ -80,6 +114,11 @@ impl Node for Expression {
             Expression::Identifier(i) => i.token.literal.clone(),
         }
     }
+    fn string(&self) -> String {
+        match self {
+            Expression::Identifier(i) => i.value,
+        }
+    }
 }
 
 pub struct Program {
@@ -99,5 +138,14 @@ impl Node for Program {
         } else {
             String::new()
         }
+    }
+    fn string(&self) -> String {
+        let mut out = String::new();
+
+        self.statements.iter().for_each(|s| {
+            out.push_str(&s.string());
+        });
+
+        out
     }
 }
