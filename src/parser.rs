@@ -132,7 +132,7 @@ impl Parser {
 
 #[cfg(test)]
 mod tests {
-    use crate::ast::{Node, Program, Statement};
+    use crate::ast::{Node, Statement};
     use crate::lexer::Lexer;
     use crate::parser::Parser;
 
@@ -250,7 +250,7 @@ return 993322;
                 );
                 fail_count += 1;
             }
-            if let Statement::Return(return_statement) = statement {
+            if let Statement::Return(_) = statement {
             } else {
                 println!("statement is not a ReturnStatement. Got {:?}", statement);
                 fail_count += 1;
