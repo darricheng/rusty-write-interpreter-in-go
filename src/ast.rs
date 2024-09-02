@@ -46,11 +46,6 @@ impl ReturnStatement {
         ReturnStatement { token, value }
     }
 }
-impl Node for ReturnStatement {
-    fn token_literal(&self) -> String {
-        self.token.literal.clone()
-    }
-}
 
 #[derive(Debug)]
 pub struct ExpressionStatement {

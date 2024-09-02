@@ -242,14 +242,14 @@ return 993322;
         let mut fail_count = 0;
 
         program.statements.iter().for_each(|statement| {
+            if statement.token_literal() != "return" {
+                println!(
+                    "return_statement.token_literal not 'return', got: {}",
+                    statement.token_literal()
+                );
+                fail_count += 1;
+            }
             if let Statement::Return(return_statement) = statement {
-                if return_statement.token_literal() != "return" {
-                    println!(
-                        "return_statement.token_literal not 'return', got: {}",
-                        return_statement.token_literal()
-                    );
-                    fail_count += 1;
-                }
             } else {
                 println!("statement is not a ReturnStatement. Got {:?}", statement);
                 fail_count += 1;
