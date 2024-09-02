@@ -4,6 +4,24 @@ pub trait Node {
     fn token_literal(&self) -> String;
 }
 
+/*************
+* Statements *
+*************/
+#[derive(Debug)]
+pub enum Statement {
+    Let(LetStatement),
+    Return(ReturnStatement),
+}
+
+impl Node for Statement {
+    fn token_literal(&self) -> String {
+        match self {
+            Statement::Let(s) => s.token.literal.clone(),
+            Statement::Return(s) => s.token.literal.clone(),
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct LetStatement {
     pub token: Token,
@@ -29,21 +47,6 @@ impl ReturnStatement {
 impl Node for ReturnStatement {
     fn token_literal(&self) -> String {
         self.token.literal.clone()
-    }
-}
-
-#[derive(Debug)]
-pub enum Statement {
-    Let(LetStatement),
-    Return(ReturnStatement),
-}
-
-impl Node for Statement {
-    fn token_literal(&self) -> String {
-        match self {
-            Statement::Let(s) => s.token.literal.clone(),
-            Statement::Return(s) => s.token.literal.clone(),
-        }
     }
 }
 
