@@ -1,4 +1,4 @@
-use crate::token::{self, Token, TokenType};
+use crate::token::Token;
 
 pub trait Node {
     fn token_literal(&self) -> String;
@@ -32,6 +32,7 @@ impl Node for Statement {
                 out.push_str(&ls.name.string());
                 out.push_str(" = ");
 
+                // TODO: to be taken out when we can fully build expressions
                 if let Some(val) = ls.value {
                     out.push_str(&val.string());
                 }
@@ -42,12 +43,14 @@ impl Node for Statement {
                 out.push_str(&self.token_literal());
                 out.push(' ');
 
+                // TODO: to be taken out when we can fully build expressions
                 if let Some(val) = rs.value {
                     out.push_str(&val.string());
                 }
                 out.push(';');
             }
             Statement::Expression(es) => {
+                // TODO: to be taken out when we can fully build expressions
                 if let Some(expression) = es.expression {
                     out.push_str(&expression.string());
                 }
@@ -84,7 +87,7 @@ impl ReturnStatement {
 #[derive(Debug)]
 pub struct ExpressionStatement {
     token: Token,
-    expression: Option<Expression>,
+    expression: Option<Expression>, // TODO: temp Option until we parse expressions in Return
 }
 
 #[derive(Debug)]
