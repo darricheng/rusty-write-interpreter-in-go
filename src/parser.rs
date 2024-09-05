@@ -108,7 +108,7 @@ impl Parser {
             self.next_token();
         }
 
-        let statement = Statement::Let(LetStatement::new(let_token.clone(), statement_name, None));
+        let statement = Statement::Let(LetStatement::new(let_token, statement_name, None));
 
         Some(statement)
     }
@@ -124,7 +124,7 @@ impl Parser {
             self.next_token();
         }
 
-        let statement = Statement::Return(ReturnStatement::new(return_token.clone(), None));
+        let statement = Statement::Return(ReturnStatement::new(return_token, None));
 
         Some(statement)
     }
