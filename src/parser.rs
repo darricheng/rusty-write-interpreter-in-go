@@ -27,6 +27,9 @@ impl Parser {
         }
     }
 
+    /**
+     * Error handling
+     */
     fn errors(&self) -> Vec<ParserError> {
         self.errors.clone()
     }
@@ -39,12 +42,16 @@ impl Parser {
         );
         self.errors.push(ParserError::new(error_message));
     }
-
+    /**
+     * Advance token
+     */
     fn next_token(&mut self) {
         self.current_token = self.peek_token.clone();
         self.peek_token = self.l.next_token();
     }
-
+    /**
+     * Parse program
+     */
     fn parse_program(&mut self) -> Program {
         let mut program = Program::new();
 
@@ -59,6 +66,9 @@ impl Parser {
         program
     }
 
+    /**
+     * Helper methods for checking tokens
+     */
     fn cur_token_is(&self, t: TokenType) -> bool {
         self.current_token.token_type == t
     }
@@ -78,6 +88,9 @@ impl Parser {
         false
     }
 
+    /**
+     * Methods for parsing
+     */
     fn parse_statement(&mut self) -> Option<Statement> {
         match self.current_token.token_type {
             TokenType::Let => self.parse_let_statement(),
