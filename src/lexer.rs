@@ -121,7 +121,7 @@ impl Lexer {
                     let literal = self.read_number();
                     return Token::new_from_str(TokenType::Int, literal);
                 } else {
-                    Token::new_from_byte(TokenType::Illegal, self.ch)
+                    return Token::new_from_byte(TokenType::Illegal, self.ch);
                 }
             }
         };
