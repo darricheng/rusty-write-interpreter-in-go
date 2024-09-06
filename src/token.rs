@@ -60,12 +60,6 @@ impl Token {
             literal,
         }
     }
-    pub fn new_placeholder() -> Token {
-        Token {
-            token_type: TokenType::Illegal,
-            literal: String::new(),
-        }
-    }
 
     pub fn lookup_ident(ident: &str) -> TokenType {
         match ident {
