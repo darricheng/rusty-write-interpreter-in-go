@@ -1,6 +1,6 @@
 use crate::ast::{
-    Expression, ExpressionStatement, IdentifierStruct, LetStatement, Program, ReturnStatement,
-    Statement,
+    Expression, ExpressionStatement, IdentifierStruct, IntegerLiteralStruct, LetStatement, Program,
+    ReturnStatement, Statement,
 };
 use crate::token::TokenType;
 use crate::{lexer::Lexer, token::Token};
@@ -185,6 +185,7 @@ impl Parser {
     fn prefix_parse_fns(&mut self, token_type: TokenType) -> Option<Expression> {
         match token_type {
             TokenType::Ident => Some(self.parse_identifier()),
+            TokenType::Int => Some(self.parse_integer_literal()),
             _ => None,
         }
     }
@@ -209,11 +210,24 @@ impl Parser {
             self.current_token.literal.clone(),
         ))
     }
+
+    fn parse_integer_literal(&mut self) -> Expression {
+        let value = match self.current_token.literal.parse::<i64>() {
+            Ok(val) => Some(val),
+            Err(_) => {
+                let msg = format!("Could not parse {} as integer", self.current_token.literal);
+                self.errors.push(ParserError::new(msg));
+                None
+            }
+        };
+
+        Expression::IntegerLiteral(IntegerLiteralStruct::new(self.current_token.clone(), value))
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::ast::{Expression, Node, Statement};
+    use crate::ast::{Expression, ExpressionStatement, Node, Statement};
     use crate::lexer::Lexer;
     use crate::parser::Parser;
 
@@ -280,11 +294,11 @@ let foobar = 838383;
         }
 
         if let Statement::Let(statement_data) = s {
-            if statement_data.name.get_expression().value != name {
+            if statement_data.name.get_expression().unwrap().value != name {
                 println!(
                     "let_statement.name.value not {}, got {}",
                     name,
-                    statement_data.name.get_expression().value
+                    statement_data.name.get_expression().unwrap().value
                 );
                 return false;
             }
@@ -345,6 +359,16 @@ return 993322;
         );
     }
 
+    fn extract_expression_statement(stmt: &Statement) -> &ExpressionStatement {
+        match stmt {
+            Statement::Expression(s) => s,
+            s => panic!(
+                "program.statements[0] is not an ExpressionStatement, got {:?}",
+                s
+            ),
+        }
+    }
+
     #[test]
     fn test_identifier_expression() {
         let input = "foobar;";
@@ -363,14 +387,7 @@ return 993322;
         );
 
         let stmt = program.statements.get(0).unwrap();
-        let expression_stmt = match stmt {
-            Statement::Expression(s) => s,
-            s => panic!(
-                "program.statements[0] is not an ExpressionStatement, got {:?}",
-                s
-            ),
-        };
-
+        let expression_stmt = extract_expression_statement(stmt);
         let ident_test = expression_stmt.expression.as_ref().unwrap();
         let ident = match ident_test {
             Expression::Identifier(i) => i,
@@ -387,6 +404,45 @@ return 993322;
             "foobar",
             "ident token_literal() not 'foobar', got {}",
             ident_test.token_literal()
+        );
+    }
+
+    #[test]
+    fn test_integer_literal_expression() {
+        let input = "5;";
+
+        let l = Lexer::new(input.to_string());
+        let mut p = Parser::new(l);
+        let program = p.parse_program();
+        check_parser_errors(p);
+
+        assert_eq!(
+            program.statements.len(),
+            1,
+            "program doesn't have 1 statement, got {}. Statements: {:?}",
+            program.statements.len(),
+            program.statements
+        );
+
+        let stmt = program.statements.get(0).unwrap();
+        let expression_stmt = extract_expression_statement(&stmt);
+        let integer_literal_test = expression_stmt.expression.as_ref().unwrap();
+        let integer_literal = match integer_literal_test {
+            Expression::IntegerLiteral(i) => i,
+            i => panic!("expression not IntegerLiteral, got {:?}", i),
+        };
+
+        assert_eq!(
+            integer_literal.value.unwrap(),
+            5,
+            "literal.value not 5, got {}",
+            integer_literal.value.unwrap()
+        );
+        assert_eq!(
+            integer_literal_test.token_literal(),
+            "5",
+            "literal.token_literal() not 5, got {}",
+            integer_literal_test.token_literal()
         );
     }
 }

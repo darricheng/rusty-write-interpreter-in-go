@@ -105,11 +105,13 @@ impl ExpressionStatement {
 #[derive(Debug)]
 pub enum Expression {
     Identifier(IdentifierStruct),
+    IntegerLiteral(IntegerLiteralStruct),
 }
 impl Expression {
-    pub fn get_expression(&self) -> IdentifierStruct {
+    pub fn get_expression(&self) -> Option<IdentifierStruct> {
         match self {
-            Expression::Identifier(i) => i.clone(),
+            Expression::Identifier(i) => Some(i.clone()),
+            _ => None,
         }
     }
 }
@@ -117,11 +119,16 @@ impl Node for Expression {
     fn token_literal(&self) -> String {
         match self {
             Expression::Identifier(i) => i.token.literal.clone(),
+            Expression::IntegerLiteral(i) => i.token.literal.clone(),
         }
     }
     fn string(&self) -> String {
         match self {
             Expression::Identifier(i) => i.value.clone(),
+            Expression::IntegerLiteral(i) => i
+                .value
+                .expect("IntegerLiteralStruct has None value.")
+                .to_string(),
         }
     }
 }
@@ -134,6 +141,17 @@ pub struct IdentifierStruct {
 impl IdentifierStruct {
     pub fn new(token: Token, value: String) -> IdentifierStruct {
         IdentifierStruct { token, value }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct IntegerLiteralStruct {
+    token: Token,
+    pub value: Option<i64>,
+}
+impl IntegerLiteralStruct {
+    pub fn new(token: Token, value: Option<i64>) -> IntegerLiteralStruct {
+        IntegerLiteralStruct { token, value }
     }
 }
 
