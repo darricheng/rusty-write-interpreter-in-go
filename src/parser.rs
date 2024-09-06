@@ -392,7 +392,7 @@ return 993322;
         let ident_expression = expression_stmt.expression.as_ref().unwrap();
         let ident = match ident_expression {
             Expression::Identifier(i) => i,
-            i => panic!("expression not Identifier, got {:?}", i),
+            e => panic!("expression not Identifier, got {:?}", e),
         };
 
         assert_eq!(
@@ -429,7 +429,7 @@ return 993322;
         let integer_literal_expression = expression_stmt.expression.as_ref().unwrap();
         let integer_literal = match integer_literal_expression {
             Expression::IntegerLiteral(i) => i,
-            i => panic!("expression not IntegerLiteral, got {:?}", i),
+            e => panic!("expression not IntegerLiteral, got {:?}", e),
         };
 
         assert_eq!(
