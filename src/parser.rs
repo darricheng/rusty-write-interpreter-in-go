@@ -19,12 +19,18 @@ struct Parser {
 
 impl Parser {
     fn new(l: Lexer) -> Parser {
-        Parser {
+        let mut p = Parser {
             l,
             current_token: Token::new_placeholder(),
             peek_token: Token::new_placeholder(),
             errors: Vec::new(),
-        }
+        };
+
+        // Read two tokens so that current and peek tokens are set to valid tokens
+        p.next_token();
+        p.next_token();
+
+        p
     }
 
     /**
