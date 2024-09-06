@@ -190,8 +190,9 @@ let foobar = 838383;
 
         assert!(
             program.statements.len() == 3,
-            "Program.statements does not contain 3 statements, got: {}",
-            program.statements.len()
+            "Program.statements does not contain 3 statements, got: {}. Statements: {:?}",
+            program.statements.len(),
+            program.statements
         );
 
         let tests: Vec<ExpectedIdentifier> = vec![
@@ -255,8 +256,9 @@ return 993322;
 
         assert!(
             program.statements.len() == 3,
-            "Program.statements does not contain 3 statements, got: {}",
-            program.statements.len()
+            "Program.statements does not contain 3 statements, got: {}. Statements: {:?}",
+            program.statements.len(),
+            program.statements
         );
 
         let mut fail_count = 0;
