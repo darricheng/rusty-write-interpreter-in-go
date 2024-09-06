@@ -91,7 +91,12 @@ impl ReturnStatement {
 #[derive(Debug)]
 pub struct ExpressionStatement {
     token: Token,
-    expression: Option<Expression>, // TODO: temp Option until we parse expressions in Return
+    pub expression: Option<Expression>, // TODO: temp Option until we parse expressions in Return
+}
+impl ExpressionStatement {
+    pub fn new(token: Token, expression: Option<Expression>) -> ExpressionStatement {
+        ExpressionStatement { token, expression }
+    }
 }
 
 /**************

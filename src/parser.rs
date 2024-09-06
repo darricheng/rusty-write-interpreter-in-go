@@ -1,6 +1,20 @@
-use crate::ast::{IdentifierStruct, LetStatement, Program, ReturnStatement, Statement};
+use crate::ast::{
+    Expression, ExpressionStatement, IdentifierStruct, LetStatement, Program, ReturnStatement,
+    Statement,
+};
 use crate::token::TokenType;
 use crate::{lexer::Lexer, token::Token};
+
+/**
+* Operator Precedence
+*/
+const LOWEST: i32 = 1;
+const EQUALS: i32 = 2; // ==
+const LESSGREATER: i32 = 3; // > or <
+const SUM: i32 = 4; // +
+const PRODUCT: i32 = 5; // *
+const PREFIX: i32 = 6; // -X or !X
+const CALL: i32 = 7; // my_function(X)
 
 #[derive(Clone)]
 struct ParserError(String);
@@ -101,7 +115,7 @@ impl Parser {
         match self.current_token.token_type {
             TokenType::Let => self.parse_let_statement(),
             TokenType::Return => self.parse_return_statement(),
-            _ => None,
+            _ => self.parse_expression_statement(),
         }
     }
 
@@ -147,11 +161,59 @@ impl Parser {
 
         Some(statement)
     }
+
+    fn parse_expression_statement(&mut self) -> Option<Statement> {
+        let expression_token = self.current_token.clone();
+        let expression = self.parse_expression(LOWEST);
+
+        if self.peek_token_is(TokenType::Semicolon) {
+            self.next_token()
+        }
+
+        let statement = Statement::Expression(ExpressionStatement::new(
+            expression_token,
+            Some(expression)?,
+        ));
+
+        Some(statement)
+    }
+
+    /**
+     * Parse expressions
+     */
+    // TODO: tmp Option return type until we implement all TokenTypes
+    fn prefix_parse_fns(&mut self, token_type: TokenType) -> Option<Expression> {
+        match token_type {
+            TokenType::Ident => Some(self.parse_identifier()),
+            _ => None,
+        }
+    }
+
+    // TODO: tmp Option return type until we implement all TokenTypes
+    fn infix_parse_fns(token_type: TokenType, expression: Expression) -> Option<Expression> {
+        match token_type {
+            _ => None,
+        }
+    }
+
+    // TODO: Options everywhere! Probably should remove eventually
+    fn parse_expression(&mut self, precedence: i32) -> Option<Expression> {
+        let left_exp = self.prefix_parse_fns(self.current_token.token_type.clone());
+
+        left_exp
+    }
+
+    fn parse_identifier(&mut self) -> Expression {
+        Expression::Identifier(IdentifierStruct::new(
+            self.current_token.clone(),
+            self.current_token.literal.clone(),
+        ))
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::ast::{Node, Statement};
+    use crate::ast::{Expression, Node, Statement};
     use crate::lexer::Lexer;
     use crate::parser::Parser;
 
@@ -280,6 +342,51 @@ return 993322;
         assert_eq!(
             fail_count, 0,
             "More than one return statement test failed, check logs above this."
+        );
+    }
+
+    #[test]
+    fn test_identifier_expression() {
+        let input = "foobar;";
+
+        let l = Lexer::new(input.to_string());
+        let mut p = Parser::new(l);
+        let program = p.parse_program();
+        check_parser_errors(p);
+
+        assert_eq!(
+            program.statements.len(),
+            1,
+            "program doesn't have 1 statement, got {}. Statements: {:?}",
+            program.statements.len(),
+            program.statements
+        );
+
+        let stmt = program.statements.get(0).unwrap();
+        let expression_stmt = match stmt {
+            Statement::Expression(s) => s,
+            s => panic!(
+                "program.statements[0] is not an ExpressionStatement, got {:?}",
+                s
+            ),
+        };
+
+        let ident_test = expression_stmt.expression.as_ref().unwrap();
+        let ident = match ident_test {
+            Expression::Identifier(i) => i,
+            i => panic!("expression not Identifier, got {:?}", i),
+        };
+
+        assert_eq!(
+            ident.value, "foobar",
+            "ident.value not 'foobar', got {}",
+            ident.value
+        );
+        assert_eq!(
+            ident_test.token_literal(),
+            "foobar",
+            "ident token_literal() not 'foobar', got {}",
+            ident_test.token_literal()
         );
     }
 }
