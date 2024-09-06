@@ -357,7 +357,11 @@ return 993322;
         );
     }
 
-    fn extract_expression_statement(stmt: &Statement) -> &ExpressionStatement {
+    fn extract_expression_statement(program: Program) -> &ExpressionStatement {
+        let stmt = program
+            .statements
+            .get(0)
+            .expect("Did not have any statements.");
         match stmt {
             Statement::Expression(s) => s,
             s => panic!(
@@ -384,10 +388,9 @@ return 993322;
             program.statements
         );
 
-        let stmt = program.statements.get(0).unwrap();
-        let expression_stmt = extract_expression_statement(stmt);
-        let ident_test = expression_stmt.expression.as_ref().unwrap();
-        let ident = match ident_test {
+        let expression_stmt = extract_expression_statement(program);
+        let ident_expression = expression_stmt.expression.as_ref().unwrap();
+        let ident = match ident_expression {
             Expression::Identifier(i) => i,
             i => panic!("expression not Identifier, got {:?}", i),
         };
@@ -398,10 +401,10 @@ return 993322;
             ident.value
         );
         assert_eq!(
-            ident_test.token_literal(),
+            ident_expression.token_literal(),
             "foobar",
             "ident token_literal() not 'foobar', got {}",
-            ident_test.token_literal()
+            ident_expression.token_literal()
         );
     }
 
@@ -422,10 +425,9 @@ return 993322;
             program.statements
         );
 
-        let stmt = program.statements.get(0).unwrap();
-        let expression_stmt = extract_expression_statement(&stmt);
-        let integer_literal_test = expression_stmt.expression.as_ref().unwrap();
-        let integer_literal = match integer_literal_test {
+        let expression_stmt = extract_expression_statement(program);
+        let integer_literal_expression = expression_stmt.expression.as_ref().unwrap();
+        let integer_literal = match integer_literal_expression {
             Expression::IntegerLiteral(i) => i,
             i => panic!("expression not IntegerLiteral, got {:?}", i),
         };
@@ -437,10 +439,10 @@ return 993322;
             integer_literal.value.unwrap()
         );
         assert_eq!(
-            integer_literal_test.token_literal(),
+            integer_literal_expression.token_literal(),
             "5",
             "literal.token_literal() not 5, got {}",
-            integer_literal_test.token_literal()
+            integer_literal_expression.token_literal()
         );
     }
 }
