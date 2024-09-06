@@ -357,18 +357,21 @@ return 993322;
         );
     }
 
-    fn extract_expression_statement(program: Program) -> &ExpressionStatement {
+    fn extract_expression(program: Program) -> &Expression {
         let stmt = program
             .statements
             .get(0)
             .expect("Did not have any statements.");
-        match stmt {
+
+        let expression_stmt = match stmt {
             Statement::Expression(s) => s,
             s => panic!(
                 "program.statements[0] is not an ExpressionStatement, got {:?}",
                 s
             ),
-        }
+        };
+
+        expression_stmt.expression.as_ref().unwrap()
     }
 
     #[test]
@@ -388,8 +391,7 @@ return 993322;
             program.statements
         );
 
-        let expression_stmt = extract_expression_statement(program);
-        let ident_expression = expression_stmt.expression.as_ref().unwrap();
+        let ident_expression = extract_expression(program);
         let ident = match ident_expression {
             Expression::Identifier(i) => i,
             e => panic!("expression not Identifier, got {:?}", e),
@@ -425,8 +427,7 @@ return 993322;
             program.statements
         );
 
-        let expression_stmt = extract_expression_statement(program);
-        let integer_literal_expression = expression_stmt.expression.as_ref().unwrap();
+        let integer_literal_expression = extract_expression(program);
         let integer_literal = match integer_literal_expression {
             Expression::IntegerLiteral(i) => i,
             e => panic!("expression not IntegerLiteral, got {:?}", e),
