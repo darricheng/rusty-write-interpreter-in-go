@@ -1,6 +1,6 @@
 use crate::ast::{
-    Expression, ExpressionStatement, IdentifierStruct, IntegerLiteralStruct, LetStatement, Program,
-    ReturnStatement, Statement,
+    Expression, ExpressionStatement, IdentifierStruct, IntegerLiteralStruct, LetStatement,
+    PrefixExpressionStruct, Program, ReturnStatement, Statement,
 };
 use crate::token::TokenType;
 use crate::{lexer::Lexer, token::Token};
@@ -184,6 +184,8 @@ impl Parser {
         match token_type {
             TokenType::Ident => Some(self.parse_identifier()),
             TokenType::Int => Some(self.parse_integer_literal()),
+            TokenType::Bang => Some(self.parse_prefix_expression()),
+            TokenType::Minus => Some(self.parse_prefix_expression()),
             _ => None,
         }
     }
@@ -198,6 +200,12 @@ impl Parser {
     // TODO: Options everywhere! Probably should remove eventually
     fn parse_expression(&mut self, precedence: i32) -> Option<Expression> {
         let left_exp = self.prefix_parse_fns(self.current_token.token_type.clone());
+
+        // prefix_parse_fns didn't have the corresponding match arm to parse the prefix
+        if let None = left_exp {
+            self.no_prefix_parse_fn_error(self.current_token.token_type.clone());
+            return None;
+        }
 
         left_exp
     }
@@ -221,11 +229,27 @@ impl Parser {
 
         Expression::IntegerLiteral(IntegerLiteralStruct::new(self.current_token.clone(), value))
     }
+
+    fn no_prefix_parse_fn_error(&mut self, t: TokenType) {
+        let msg = format!("No prefix parse function found for {:?}", t);
+        self.errors.push(ParserError(msg));
+    }
+
+    fn parse_prefix_expression(&mut self) -> Expression {
+        let token = self.current_token.clone();
+        let operator = self.current_token.literal.clone();
+
+        self.next_token();
+
+        let right = self.parse_expression(PREFIX).unwrap();
+
+        Expression::PrefixExpression(PrefixExpressionStruct::new(token, operator, right))
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::ast::{Expression, ExpressionStatement, Node, Statement};
+    use crate::ast::{Expression, Node, Program, Statement};
     use crate::lexer::Lexer;
     use crate::parser::Parser;
 
@@ -357,7 +381,7 @@ return 993322;
         );
     }
 
-    fn extract_expression(program: Program) -> &Expression {
+    fn extract_expression(program: Program) -> Expression {
         let stmt = program
             .statements
             .get(0)
@@ -371,7 +395,7 @@ return 993322;
             ),
         };
 
-        expression_stmt.expression.as_ref().unwrap()
+        expression_stmt.expression.as_ref().unwrap().clone()
     }
 
     #[test]
@@ -393,7 +417,7 @@ return 993322;
 
         let ident_expression = extract_expression(program);
         let ident = match ident_expression {
-            Expression::Identifier(i) => i,
+            Expression::Identifier(ref i) => i,
             e => panic!("expression not Identifier, got {:?}", e),
         };
 
@@ -429,7 +453,7 @@ return 993322;
 
         let integer_literal_expression = extract_expression(program);
         let integer_literal = match integer_literal_expression {
-            Expression::IntegerLiteral(i) => i,
+            Expression::IntegerLiteral(ref i) => i,
             e => panic!("expression not IntegerLiteral, got {:?}", e),
         };
 
@@ -445,5 +469,83 @@ return 993322;
             "literal.token_literal() not 5, got {}",
             integer_literal_expression.token_literal()
         );
+    }
+
+    struct PrefixTest {
+        input: String,
+        operator: String,
+        integer_value: i64,
+    }
+    impl PrefixTest {
+        fn new(input: &str, operator: &str, integer_value: i64) -> PrefixTest {
+            PrefixTest {
+                input: input.to_string(),
+                operator: operator.to_string(),
+                integer_value,
+            }
+        }
+    }
+    #[test]
+    fn test_parsing_prefix_expressions() {
+        let prefix_tests: Vec<PrefixTest> = vec![
+            PrefixTest::new("!5;", "!", 5),
+            PrefixTest::new("-15;", "-", 15),
+        ];
+
+        prefix_tests.into_iter().for_each(|test| {
+            let l = Lexer::new(test.input);
+            let mut p = Parser::new(l);
+            let program = p.parse_program();
+            check_parser_errors(p);
+
+            assert!(
+                program.statements.len() == 1,
+                "program.statements does not contain 1 statement. Got: {}. Statements: {:?}",
+                program.statements.len(),
+                program.statements
+            );
+
+            let prefix_expression = extract_expression(program);
+            let prefix = match prefix_expression {
+                Expression::PrefixExpression(p) => p,
+                e => panic!("expression not PrefixExpression, got {:?}", e),
+            };
+
+            assert_eq!(
+                prefix.operator, test.operator,
+                "prefix_expression.operator is not {}. Got {}",
+                prefix.operator, test.operator
+            );
+
+            assert!(test_integer_literal(*prefix.right, test.integer_value,));
+        });
+    }
+
+    fn test_integer_literal(il_expression: Expression, value: i64) -> bool {
+        if let Expression::IntegerLiteral(ref int_literal) = il_expression {
+            if int_literal.value.unwrap() != value {
+                println!(
+                    "int_literal.value not {}, got: {}",
+                    value,
+                    int_literal.value.unwrap()
+                );
+                false
+            } else if il_expression.token_literal() != value.to_string() {
+                println!(
+                    "il_expression.token_literal not {}, got: {}",
+                    value.to_string(),
+                    il_expression.token_literal()
+                );
+                false
+            } else {
+                true
+            }
+        } else {
+            println!(
+                "int_literal not Expression::IntegerLiteral, got: {:?}",
+                il_expression
+            );
+            false
+        }
     }
 }

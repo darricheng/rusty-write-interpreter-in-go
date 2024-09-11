@@ -102,10 +102,11 @@ impl ExpressionStatement {
 /**************
 * Expressions *
 **************/
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Expression {
     Identifier(IdentifierStruct),
     IntegerLiteral(IntegerLiteralStruct),
+    PrefixExpression(PrefixExpressionStruct),
 }
 impl Expression {
     pub fn get_expression(&self) -> Option<IdentifierStruct> {
@@ -120,6 +121,7 @@ impl Node for Expression {
         match self {
             Expression::Identifier(i) => i.token.literal.clone(),
             Expression::IntegerLiteral(i) => i.token.literal.clone(),
+            Expression::PrefixExpression(pe) => pe.token.literal.clone(),
         }
     }
     fn string(&self) -> String {
@@ -129,6 +131,15 @@ impl Node for Expression {
                 .value
                 .expect("IntegerLiteralStruct has None value.")
                 .to_string(),
+            Expression::PrefixExpression(pe) => {
+                let mut str_val = String::new();
+                str_val.push('(');
+                str_val.push_str(&pe.operator);
+                str_val.push_str(&pe.right.string());
+                str_val.push(')');
+
+                str_val
+            }
         }
     }
 }
@@ -152,6 +163,22 @@ pub struct IntegerLiteralStruct {
 impl IntegerLiteralStruct {
     pub fn new(token: Token, value: Option<i64>) -> IntegerLiteralStruct {
         IntegerLiteralStruct { token, value }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct PrefixExpressionStruct {
+    token: Token,
+    pub operator: String,
+    pub right: Box<Expression>,
+}
+impl PrefixExpressionStruct {
+    pub fn new(token: Token, operator: String, right: Expression) -> PrefixExpressionStruct {
+        PrefixExpressionStruct {
+            token,
+            operator,
+            right: Box::new(right),
+        }
     }
 }
 
