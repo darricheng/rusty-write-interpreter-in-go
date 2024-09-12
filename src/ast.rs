@@ -107,6 +107,7 @@ pub enum Expression {
     Identifier(IdentifierStruct),
     IntegerLiteral(IntegerLiteralStruct),
     PrefixExpression(PrefixExpressionStruct),
+    InfixExpression(InfixExpressionStruct),
 }
 impl Expression {
     pub fn get_expression(&self) -> Option<IdentifierStruct> {
@@ -122,6 +123,7 @@ impl Node for Expression {
             Expression::Identifier(i) => i.token.literal.clone(),
             Expression::IntegerLiteral(i) => i.token.literal.clone(),
             Expression::PrefixExpression(pe) => pe.token.literal.clone(),
+            Expression::InfixExpression(ie) => ie.token.literal.clone(),
         }
     }
     fn string(&self) -> String {
@@ -136,6 +138,18 @@ impl Node for Expression {
                 str_val.push('(');
                 str_val.push_str(&pe.operator);
                 str_val.push_str(&pe.right.string());
+                str_val.push(')');
+
+                str_val
+            }
+            Expression::InfixExpression(ie) => {
+                let mut str_val = String::new();
+                str_val.push('(');
+                str_val.push_str(&ie.left.string());
+                str_val.push(' ');
+                str_val.push_str(&ie.operator);
+                str_val.push(' ');
+                str_val.push_str(&ie.right.string());
                 str_val.push(')');
 
                 str_val
@@ -176,6 +190,29 @@ impl PrefixExpressionStruct {
     pub fn new(token: Token, operator: String, right: Expression) -> PrefixExpressionStruct {
         PrefixExpressionStruct {
             token,
+            operator,
+            right: Box::new(right),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct InfixExpressionStruct {
+    token: Token,
+    pub left: Box<Expression>,
+    pub operator: String,
+    pub right: Box<Expression>,
+}
+impl InfixExpressionStruct {
+    pub fn new(
+        token: Token,
+        left: Expression,
+        operator: String,
+        right: Expression,
+    ) -> InfixExpressionStruct {
+        InfixExpressionStruct {
+            token,
+            left: Box::new(left),
             operator,
             right: Box::new(right),
         }

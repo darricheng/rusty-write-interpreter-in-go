@@ -1,6 +1,6 @@
 use crate::ast::{
-    Expression, ExpressionStatement, IdentifierStruct, IntegerLiteralStruct, LetStatement,
-    PrefixExpressionStruct, Program, ReturnStatement, Statement,
+    Expression, ExpressionStatement, IdentifierStruct, InfixExpressionStruct, IntegerLiteralStruct,
+    LetStatement, PrefixExpressionStruct, Program, ReturnStatement, Statement,
 };
 use crate::token::TokenType;
 use crate::{lexer::Lexer, token::Token};
@@ -179,6 +179,29 @@ impl Parser {
     /**
      * Parse expressions
      */
+    // TODO: Options everywhere! Probably should remove eventually
+    fn parse_expression(&mut self, precedence: i32) -> Option<Expression> {
+        let mut left_exp = self.prefix_parse_fns(self.current_token.token_type.clone());
+        if let None = left_exp {
+            self.no_prefix_parse_fn_error(self.current_token.token_type.clone());
+            return None;
+        }
+
+        while !self.peek_token_is(TokenType::Semicolon) && precedence < self.peek_precedence() {
+            let infix_fn_exists = Parser::check_infix_parse_fns(self.peek_token.token_type.clone());
+            if let None = infix_fn_exists {
+                return left_exp;
+            }
+
+            self.next_token();
+
+            left_exp =
+                self.infix_parse_fns(self.current_token.token_type.clone(), left_exp.unwrap());
+        }
+
+        left_exp
+    }
+
     // TODO: tmp Option return type until we implement all TokenTypes
     fn prefix_parse_fns(&mut self, token_type: TokenType) -> Option<Expression> {
         match token_type {
@@ -188,26 +211,6 @@ impl Parser {
             TokenType::Minus => Some(self.parse_prefix_expression()),
             _ => None,
         }
-    }
-
-    // TODO: tmp Option return type until we implement all TokenTypes
-    fn infix_parse_fns(token_type: TokenType, expression: Expression) -> Option<Expression> {
-        match token_type {
-            _ => None,
-        }
-    }
-
-    // TODO: Options everywhere! Probably should remove eventually
-    fn parse_expression(&mut self, precedence: i32) -> Option<Expression> {
-        let left_exp = self.prefix_parse_fns(self.current_token.token_type.clone());
-
-        // prefix_parse_fns didn't have the corresponding match arm to parse the prefix
-        if let None = left_exp {
-            self.no_prefix_parse_fn_error(self.current_token.token_type.clone());
-            return None;
-        }
-
-        left_exp
     }
 
     fn parse_identifier(&mut self) -> Expression {
@@ -244,6 +247,75 @@ impl Parser {
         let right = self.parse_expression(PREFIX).unwrap();
 
         Expression::PrefixExpression(PrefixExpressionStruct::new(token, operator, right))
+    }
+
+    // TODO: tmp Option return type until we implement all TokenTypes
+    fn infix_parse_fns(
+        &mut self,
+        token_type: TokenType,
+        left_expression: Expression,
+    ) -> Option<Expression> {
+        match token_type {
+            TokenType::Plus => Some(self.parse_infix_expression(left_expression)),
+            TokenType::Minus => Some(self.parse_infix_expression(left_expression)),
+            TokenType::Slash => Some(self.parse_infix_expression(left_expression)),
+            TokenType::Asterisk => Some(self.parse_infix_expression(left_expression)),
+            TokenType::Eq => Some(self.parse_infix_expression(left_expression)),
+            TokenType::NotEq => Some(self.parse_infix_expression(left_expression)),
+            TokenType::Lt => Some(self.parse_infix_expression(left_expression)),
+            TokenType::Gt => Some(self.parse_infix_expression(left_expression)),
+            _ => None,
+        }
+    }
+    // Should match the infix_parse_fns' match arms above.
+    // Needed because parse_expression needs to check if the corresponding infix_parse_fn
+    // exists first, and if it does, call next_token() before calling infix_parse_fns on the
+    // token that it checked.
+    fn check_infix_parse_fns(token_type: TokenType) -> Option<()> {
+        match token_type {
+            TokenType::Plus => Some(()),
+            TokenType::Minus => Some(()),
+            TokenType::Slash => Some(()),
+            TokenType::Asterisk => Some(()),
+            TokenType::Eq => Some(()),
+            TokenType::NotEq => Some(()),
+            TokenType::Lt => Some(()),
+            TokenType::Gt => Some(()),
+            _ => None,
+        }
+    }
+
+    fn parse_infix_expression(&mut self, left: Expression) -> Expression {
+        let token = self.current_token.clone();
+        let operator = self.current_token.literal.clone();
+
+        let precedence = self.cur_precedence();
+        self.next_token();
+        let right = self.parse_expression(precedence).unwrap();
+
+        Expression::InfixExpression(InfixExpressionStruct::new(token, left, operator, right))
+    }
+
+    fn precedences(token_type: TokenType) -> i32 {
+        match token_type {
+            TokenType::Eq => EQUALS,
+            TokenType::NotEq => EQUALS,
+            TokenType::Lt => LESSGREATER,
+            TokenType::Gt => LESSGREATER,
+            TokenType::Plus => SUM,
+            TokenType::Minus => SUM,
+            TokenType::Slash => PRODUCT,
+            TokenType::Asterisk => PRODUCT,
+            _ => LOWEST,
+        }
+    }
+
+    fn peek_precedence(&self) -> i32 {
+        Parser::precedences(self.peek_token.token_type.clone())
+    }
+
+    fn cur_precedence(&self) -> i32 {
+        Parser::precedences(self.current_token.token_type.clone())
     }
 }
 
@@ -547,5 +619,64 @@ return 993322;
             );
             false
         }
+    }
+
+    struct InfixTest {
+        input: String,
+        left_value: i64,
+        operator: String,
+        right_value: i64,
+    }
+    impl InfixTest {
+        fn new(input: &str, left_value: i64, operator: &str, right_value: i64) -> InfixTest {
+            InfixTest {
+                input: input.to_string(),
+                operator: operator.to_string(),
+                left_value,
+                right_value,
+            }
+        }
+    }
+    #[test]
+    fn test_parsing_infix_expressions() {
+        let infix_tests: Vec<InfixTest> = vec![
+            InfixTest::new("5 + 5;", 5, "+", 5),
+            InfixTest::new("5 - 5;", 5, "-", 5),
+            InfixTest::new("5 * 5;", 5, "*", 5),
+            InfixTest::new("5 / 5;", 5, "/", 5),
+            InfixTest::new("5 > 5;", 5, ">", 5),
+            InfixTest::new("5 < 5;", 5, "<", 5),
+            InfixTest::new("5 == 5;", 5, "==", 5),
+            InfixTest::new("5 != 5;", 5, "!=", 5),
+        ];
+
+        infix_tests.into_iter().for_each(|test| {
+            let l = Lexer::new(test.input);
+            let mut p = Parser::new(l);
+            let program = p.parse_program();
+            check_parser_errors(p);
+
+            assert_eq!(
+                program.statements.len(),
+                1,
+                "program.statements does not contain 1 statement. Got: {:?}. Statements: {:?}",
+                program.statements.len(),
+                program.statements
+            );
+
+            let infix_expression = extract_expression(program);
+            let infix = match infix_expression {
+                Expression::InfixExpression(ie) => ie,
+                e => panic!("expression not InfixExpression, got {:?}", e),
+            };
+
+            assert!(test_integer_literal(*infix.left, test.left_value,));
+            assert_eq!(
+                infix.operator, test.operator,
+                "infix.operator is not {}. Got: {}",
+                infix.operator, test.operator
+            );
+            assert!(test_integer_literal(*infix.right, test.right_value,));
+        })
     }
 }
