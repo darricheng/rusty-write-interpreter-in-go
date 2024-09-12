@@ -679,4 +679,81 @@ return 993322;
             assert!(test_integer_literal(*infix.right, test.right_value,));
         })
     }
+
+    struct OperatorPrecedenceParsingTest {
+        input: String,
+        expected: String,
+    }
+    impl OperatorPrecedenceParsingTest {
+        fn new(input: String, expected: String) -> OperatorPrecedenceParsingTest {
+            OperatorPrecedenceParsingTest { input, expected }
+        }
+    }
+    #[test]
+    fn test_operator_precedence_parsing() {
+        let tests: Vec<OperatorPrecedenceParsingTest> = vec![
+            OperatorPrecedenceParsingTest::new("-a * b".to_string(), "((-a) * b)".to_string()),
+            OperatorPrecedenceParsingTest::new("!-a".to_string(), "(!(-a))".to_string()),
+            OperatorPrecedenceParsingTest::new(
+                "a + b + c".to_string(),
+                "((a + b) + c)".to_string(),
+            ),
+            OperatorPrecedenceParsingTest::new(
+                "a + b - c".to_string(),
+                "((a + b) - c)".to_string(),
+            ),
+            OperatorPrecedenceParsingTest::new(
+                "a * b * c".to_string(),
+                "((a * b) * c)".to_string(),
+            ),
+            OperatorPrecedenceParsingTest::new(
+                "a * b / c".to_string(),
+                "((a * b) / c)".to_string(),
+            ),
+            OperatorPrecedenceParsingTest::new(
+                "a + b / c".to_string(),
+                "(a + (b / c))".to_string(),
+            ),
+            OperatorPrecedenceParsingTest::new(
+                "a + b * c + d / e - f".to_string(),
+                "(((a + (b * c)) + (d / e)) - f)".to_string(),
+            ),
+            OperatorPrecedenceParsingTest::new(
+                "3 + 4; -5 * 5".to_string(),
+                "(3 + 4)((-5) * 5)".to_string(),
+            ),
+            OperatorPrecedenceParsingTest::new(
+                "5 > 4 == 3 < 4".to_string(),
+                "((5 > 4) == (3 < 4))".to_string(),
+            ),
+            OperatorPrecedenceParsingTest::new(
+                "5 < 4 != 3 > 4".to_string(),
+                "((5 < 4) != (3 > 4))".to_string(),
+            ),
+            OperatorPrecedenceParsingTest::new(
+                "3 + 4 * 5 == 3 * 1 + 4 * 5".to_string(),
+                "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))".to_string(),
+            ),
+            OperatorPrecedenceParsingTest::new(
+                "3 + 4 * 5 == 3 * 1 + 4 * 5".to_string(),
+                "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))".to_string(),
+            ),
+        ];
+
+        tests.into_iter().for_each(|test| {
+            let l = Lexer::new(test.input);
+            let mut p = Parser::new(l);
+            let program = p.parse_program();
+            check_parser_errors(p);
+
+            let actual = program.string();
+
+            let mut num_fail = 0;
+            if actual != test.expected {
+                println!("Expected {:?}, got: {:?}", test.expected, actual);
+                num_fail += 1;
+            }
+            assert_eq!(num_fail, 0);
+        })
+    }
 }
