@@ -24,7 +24,7 @@ impl ParserError {
     }
 }
 
-struct Parser {
+pub struct Parser {
     l: Lexer,
     current_token: Token,
     peek_token: Token,
@@ -32,7 +32,7 @@ struct Parser {
 }
 
 impl Parser {
-    fn new(mut l: Lexer) -> Parser {
+    pub fn new(mut l: Lexer) -> Parser {
         // Get the first two tokens for Parser
         let current_token = l.next_token();
         let peek_token = l.next_token();
@@ -70,7 +70,7 @@ impl Parser {
     /**
      * Parse program
      */
-    fn parse_program(&mut self) -> Program {
+    pub fn parse_program(&mut self) -> Program {
         let mut program = Program::new();
 
         while !self.cur_token_is(TokenType::Eof) {
@@ -319,25 +319,25 @@ impl Parser {
     }
 }
 
+pub fn check_parser_errors(p: Parser) {
+    let errors = p.errors();
+    if errors.len() == 0 {
+        return;
+    }
+    println!("Parser has {} errors.", errors.len());
+    errors.iter().for_each(|err| {
+        println!("Parser error: {}", err.0);
+    });
+    panic!()
+}
+
 #[cfg(test)]
 mod tests {
     use crate::ast::{Expression, Node, Program, Statement};
     use crate::lexer::Lexer;
-    use crate::parser::Parser;
+    use crate::parser::{check_parser_errors, Parser};
 
     struct ExpectedIdentifier(String);
-
-    fn check_parser_errors(p: Parser) {
-        let errors = p.errors();
-        if errors.len() == 0 {
-            return;
-        }
-        println!("Parser has {} errors.", errors.len());
-        errors.iter().for_each(|err| {
-            println!("Parser error: {}", err.0);
-        });
-        panic!()
-    }
 
     #[test]
     fn test_let_statements() {

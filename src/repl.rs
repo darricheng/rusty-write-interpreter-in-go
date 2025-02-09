@@ -1,4 +1,8 @@
-use crate::{lexer::Lexer, token::TokenType};
+use crate::{
+    ast::Node,
+    lexer::Lexer,
+    parser::{check_parser_errors, Parser},
+};
 use std::io::{self, stdout, Write};
 
 const PROMPT: &str = ">> ";
@@ -18,14 +22,12 @@ pub fn start() {
             .read_line(&mut input)
             .expect("Failed to read user input.");
 
-        let mut l = Lexer::new(input);
+        let l = Lexer::new(input);
 
-        loop {
-            let tok = l.next_token();
-            if tok.token_type == TokenType::Eof {
-                break;
-            }
-            println!("{:?}", tok);
-        }
+        let mut p = Parser::new(l);
+        let program = p.parse_program();
+        check_parser_errors(p);
+        let actual = program.string();
+        println!("Actual program: `{actual}`");
     }
 }
