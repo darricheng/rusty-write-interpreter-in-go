@@ -621,6 +621,33 @@ return 993322;
         }
     }
 
+    fn test_identifier(ident_expression: Expression, value: String) -> bool {
+        if let Expression::Identifier(ref identifier_literal) = ident_expression {
+            if identifier_literal.value != value {
+                println!(
+                    "identifier_literal.value not {}, got: {}",
+                    value, identifier_literal.value
+                );
+                false
+            } else if ident_expression.token_literal() != value {
+                println!(
+                    "ident_expression.token_literal not {}, got: {}",
+                    value,
+                    ident_expression.token_literal()
+                );
+                false
+            } else {
+                true
+            }
+        } else {
+            println!(
+                "identifier_literal not Expression::Identifier, got: {:?}",
+                ident_expression
+            );
+            false
+        }
+    }
+
     struct InfixTest {
         input: String,
         left_value: i64,
