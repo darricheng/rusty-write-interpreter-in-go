@@ -172,10 +172,10 @@ impl IdentifierStruct {
 #[derive(Debug, Clone)]
 pub struct IntegerLiteralStruct {
     token: Token,
-    pub value: Option<i64>,
+    pub value: Option<i32>,
 }
 impl IntegerLiteralStruct {
-    pub fn new(token: Token, value: Option<i64>) -> IntegerLiteralStruct {
+    pub fn new(token: Token, value: Option<i32>) -> IntegerLiteralStruct {
         IntegerLiteralStruct { token, value }
     }
 }

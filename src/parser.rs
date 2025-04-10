@@ -221,7 +221,7 @@ impl Parser {
     }
 
     fn parse_integer_literal(&mut self) -> Expression {
-        let value = match self.current_token.literal.parse::<i64>() {
+        let value = match self.current_token.literal.parse::<i32>() {
             Ok(val) => Some(val),
             Err(_) => {
                 let msg = format!("Could not parse {} as integer", self.current_token.literal);
@@ -546,10 +546,10 @@ return 993322;
     struct PrefixTest {
         input: String,
         operator: String,
-        integer_value: i64,
+        integer_value: i32,
     }
     impl PrefixTest {
-        fn new(input: &str, operator: &str, integer_value: i64) -> PrefixTest {
+        fn new(input: &str, operator: &str, integer_value: i32) -> PrefixTest {
             PrefixTest {
                 input: input.to_string(),
                 operator: operator.to_string(),
@@ -593,7 +593,7 @@ return 993322;
         });
     }
 
-    fn test_integer_literal(il_expression: Expression, value: i64) -> bool {
+    fn test_integer_literal(il_expression: Expression, value: i32) -> bool {
         if let Expression::IntegerLiteral(ref int_literal) = il_expression {
             if int_literal.value.unwrap() != value {
                 println!(
@@ -650,12 +650,12 @@ return 993322;
 
     struct InfixTest {
         input: String,
-        left_value: i64,
+        left_value: i32,
         operator: String,
-        right_value: i64,
+        right_value: i32,
     }
     impl InfixTest {
-        fn new(input: &str, left_value: i64, operator: &str, right_value: i64) -> InfixTest {
+        fn new(input: &str, left_value: i32, operator: &str, right_value: i32) -> InfixTest {
             InfixTest {
                 input: input.to_string(),
                 operator: operator.to_string(),
