@@ -803,8 +803,8 @@ return 993322;
         operator: String,
         right: &dyn Any,
     ) -> bool {
-        let op_expr = if let Expression::InfixExpression(infix_expr) = expr {
-            infix_expr
+        let op_expr = if let Expression::InfixExpression(matched_expr) = expr {
+            matched_expr
         } else {
             println!(
                 "Expression is not an Operator Expression. Got type: {} (value: {:?})",
