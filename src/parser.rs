@@ -328,6 +328,8 @@ pub fn check_parser_errors(p: Parser) {
     errors.iter().for_each(|err| {
         println!("Parser error: {}", err.0);
     });
+
+    // TODO: should this panic?
     panic!()
 }
 
