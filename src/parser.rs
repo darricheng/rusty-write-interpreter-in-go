@@ -333,6 +333,8 @@ pub fn check_parser_errors(p: Parser) {
 
 #[cfg(test)]
 mod tests {
+    use std::any::{type_name_of_val, Any};
+
     use crate::ast::{Expression, Node, Program, Statement};
     use crate::lexer::Lexer;
     use crate::parser::{check_parser_errors, Parser};
@@ -646,6 +648,53 @@ return 993322;
             );
             false
         }
+    }
+
+    fn test_literal_expression(expr: Expression, expected: &dyn Any) -> bool {
+        if let Some(num) = expected.downcast_ref::<i32>() {
+            test_integer_literal(expr, *num)
+        } else if let Some(str) = expected.downcast_ref::<String>() {
+            test_identifier(expr, str.to_string())
+        } else {
+            println!("Type of expression not handled: {:?}", expected);
+            false
+        }
+    }
+
+    fn test_infix_expression(
+        expr: Expression,
+        left: &dyn Any,
+        operator: String,
+        right: &dyn Any,
+    ) -> bool {
+        let op_expr = if let Expression::InfixExpression(infix_expr) = expr {
+            infix_expr
+        } else {
+            println!(
+                "Expression is not an Operator Expression. Got type: {} (value: {:?})",
+                type_name_of_val(&expr),
+                expr.string()
+            );
+            return false;
+        };
+
+        if !test_literal_expression(*op_expr.left, left) {
+            return false;
+        }
+
+        if op_expr.operator != operator {
+            println!(
+                "op_expr.operator is not {}, got {}",
+                operator, op_expr.operator
+            );
+            return false;
+        }
+
+        if !test_literal_expression(*op_expr.right, right) {
+            return false;
+        }
+
+        true
     }
 
     struct InfixTest {
