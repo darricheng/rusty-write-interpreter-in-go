@@ -623,80 +623,6 @@ return 993322;
         }
     }
 
-    fn test_identifier(ident_expression: Expression, value: String) -> bool {
-        if let Expression::Identifier(ref identifier_literal) = ident_expression {
-            if identifier_literal.value != value {
-                println!(
-                    "identifier_literal.value not {}, got: {}",
-                    value, identifier_literal.value
-                );
-                false
-            } else if ident_expression.token_literal() != value {
-                println!(
-                    "ident_expression.token_literal not {}, got: {}",
-                    value,
-                    ident_expression.token_literal()
-                );
-                false
-            } else {
-                true
-            }
-        } else {
-            println!(
-                "identifier_literal not Expression::Identifier, got: {:?}",
-                ident_expression
-            );
-            false
-        }
-    }
-
-    fn test_literal_expression(expr: Expression, expected: &dyn Any) -> bool {
-        if let Some(num) = expected.downcast_ref::<i32>() {
-            test_integer_literal(expr, *num)
-        } else if let Some(str) = expected.downcast_ref::<String>() {
-            test_identifier(expr, str.to_string())
-        } else {
-            println!("Type of expression not handled: {:?}", expected);
-            false
-        }
-    }
-
-    fn test_infix_expression(
-        expr: Expression,
-        left: &dyn Any,
-        operator: String,
-        right: &dyn Any,
-    ) -> bool {
-        let op_expr = if let Expression::InfixExpression(infix_expr) = expr {
-            infix_expr
-        } else {
-            println!(
-                "Expression is not an Operator Expression. Got type: {} (value: {:?})",
-                type_name_of_val(&expr),
-                expr.string()
-            );
-            return false;
-        };
-
-        if !test_literal_expression(*op_expr.left, left) {
-            return false;
-        }
-
-        if op_expr.operator != operator {
-            println!(
-                "op_expr.operator is not {}, got {}",
-                operator, op_expr.operator
-            );
-            return false;
-        }
-
-        if !test_literal_expression(*op_expr.right, right) {
-            return false;
-        }
-
-        true
-    }
-
     struct InfixTest {
         input: String,
         left_value: i32,
@@ -831,5 +757,79 @@ return 993322;
             }
             assert_eq!(num_fail, 0);
         })
+    }
+
+    fn test_identifier(ident_expression: Expression, value: String) -> bool {
+        if let Expression::Identifier(ref identifier_literal) = ident_expression {
+            if identifier_literal.value != value {
+                println!(
+                    "identifier_literal.value not {}, got: {}",
+                    value, identifier_literal.value
+                );
+                false
+            } else if ident_expression.token_literal() != value {
+                println!(
+                    "ident_expression.token_literal not {}, got: {}",
+                    value,
+                    ident_expression.token_literal()
+                );
+                false
+            } else {
+                true
+            }
+        } else {
+            println!(
+                "identifier_literal not Expression::Identifier, got: {:?}",
+                ident_expression
+            );
+            false
+        }
+    }
+
+    fn test_literal_expression(expr: Expression, expected: &dyn Any) -> bool {
+        if let Some(num) = expected.downcast_ref::<i32>() {
+            test_integer_literal(expr, *num)
+        } else if let Some(str) = expected.downcast_ref::<String>() {
+            test_identifier(expr, str.to_string())
+        } else {
+            println!("Type of expression not handled: {:?}", expected);
+            false
+        }
+    }
+
+    fn test_infix_expression(
+        expr: Expression,
+        left: &dyn Any,
+        operator: String,
+        right: &dyn Any,
+    ) -> bool {
+        let op_expr = if let Expression::InfixExpression(infix_expr) = expr {
+            infix_expr
+        } else {
+            println!(
+                "Expression is not an Operator Expression. Got type: {} (value: {:?})",
+                type_name_of_val(&expr),
+                expr.string()
+            );
+            return false;
+        };
+
+        if !test_literal_expression(*op_expr.left, left) {
+            return false;
+        }
+
+        if op_expr.operator != operator {
+            println!(
+                "op_expr.operator is not {}, got {}",
+                operator, op_expr.operator
+            );
+            return false;
+        }
+
+        if !test_literal_expression(*op_expr.right, right) {
+            return false;
+        }
+
+        true
     }
 }
