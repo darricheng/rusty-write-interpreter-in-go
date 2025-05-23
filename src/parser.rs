@@ -832,4 +832,25 @@ return 993322;
 
         true
     }
+
+    #[test]
+    fn test_boolean_expression() {}
+
+    #[test]
+    fn test_if_expression() {}
+
+    #[test]
+    fn test_if_else_expression() {}
+
+    #[test]
+    fn test_function_literal_parsing() {}
+
+    #[test]
+    fn test_function_parameter_parsing() {}
+
+    #[test]
+    fn test_call_expression_parsing() {}
+
+    #[test]
+    fn test_call_expression_parameter_parsing() {}
 }
