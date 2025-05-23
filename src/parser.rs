@@ -838,8 +838,40 @@ return 993322;
         true
     }
 
+    struct BooleanExpressionTest {
+        input: String,
+        expected_boolean: bool,
+    }
+
     #[test]
-    fn test_boolean_expression() {}
+    fn test_boolean_expression() {
+        let tests = vec![
+            BooleanExpressionTest {
+                input: "true".to_string(),
+                expected_boolean: true,
+            },
+            BooleanExpressionTest {
+                input: "false".to_string(),
+                expected_boolean: false,
+            },
+        ];
+
+        tests.into_iter().for_each(|test| {
+            let l = Lexer::new(test.input);
+            let mut p = Parser::new(l);
+            let program = p.parse_program();
+            check_parser_errors(p);
+
+            assert_eq!(
+                program.statements.len(),
+                1,
+                "Program has not enough statements. Got: {}",
+                program.statements.len()
+            );
+
+            // TODO: finish up this test
+        });
+    }
 
     #[test]
     fn test_if_expression() {}
