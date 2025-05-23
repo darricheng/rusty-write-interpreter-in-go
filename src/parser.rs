@@ -760,30 +760,33 @@ return 993322;
     }
 
     fn test_identifier(ident_expression: Expression, value: String) -> bool {
-        if let Expression::Identifier(ref identifier_literal) = ident_expression {
-            if identifier_literal.value != value {
-                println!(
-                    "identifier_literal.value not {}, got: {}",
-                    value, identifier_literal.value
-                );
-                false
-            } else if ident_expression.token_literal() != value {
-                println!(
-                    "ident_expression.token_literal not {}, got: {}",
-                    value,
-                    ident_expression.token_literal()
-                );
-                false
-            } else {
-                true
-            }
+        let identifier_literal = if let Expression::Identifier(ref matched_ident) = ident_expression
+        {
+            matched_ident
         } else {
             println!(
                 "identifier_literal not Expression::Identifier, got: {:?}",
                 ident_expression
             );
-            false
+            return false;
+        };
+
+        if identifier_literal.value != value {
+            println!(
+                "identifier_literal.value not {}, got: {}",
+                value, identifier_literal.value
+            );
+            return false;
+        } else if ident_expression.token_literal() != value {
+            println!(
+                "ident_expression.token_literal not {}, got: {}",
+                value,
+                ident_expression.token_literal()
+            );
+            return false;
         }
+
+        true
     }
 
     fn test_literal_expression(expr: Expression, expected: &dyn Any) -> bool {
