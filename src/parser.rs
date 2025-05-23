@@ -742,6 +742,8 @@ return 993322;
             ),
         ];
 
+        let mut num_fail = 0;
+
         tests.into_iter().for_each(|test| {
             let l = Lexer::new(test.input);
             let mut p = Parser::new(l);
@@ -750,13 +752,13 @@ return 993322;
 
             let actual = program.string();
 
-            let mut num_fail = 0;
             if actual != test.expected {
                 println!("Expected {:?}, got: {:?}", test.expected, actual);
                 num_fail += 1;
             }
-            assert_eq!(num_fail, 0);
-        })
+        });
+
+        assert_eq!(num_fail, 0);
     }
 
     fn test_identifier(ident_expression: Expression, value: String) -> bool {
