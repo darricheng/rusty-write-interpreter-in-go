@@ -752,6 +752,16 @@ return 993322;
                 "3 + 4 * 5 == 3 * 1 + 4 * 5".to_string(),
                 "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))".to_string(),
             ),
+            OperatorPrecedenceParsingTest::new("true".to_string(), "true".to_string()),
+            OperatorPrecedenceParsingTest::new("false".to_string(), "false".to_string()),
+            OperatorPrecedenceParsingTest::new(
+                "3 > 5 == false".to_string(),
+                "((3 > 5) == false)".to_string(),
+            ),
+            OperatorPrecedenceParsingTest::new(
+                "3 < 5 == true".to_string(),
+                "((3 < 5) == true)".to_string(),
+            ),
         ];
 
         let mut num_fail = 0;
