@@ -635,14 +635,20 @@ return 993322;
         }
     }
 
-    struct InfixTest {
+    // TODO: understand these lifetime annotations
+    struct InfixTest<'a> {
         input: String,
-        left_value: i32,
+        left_value: &'a dyn Any,
         operator: String,
-        right_value: i32,
+        right_value: &'a dyn Any,
     }
-    impl InfixTest {
-        fn new(input: &str, left_value: i32, operator: &str, right_value: i32) -> InfixTest {
+    impl InfixTest<'_> {
+        fn new<'a>(
+            input: &'a str,
+            left_value: &'a dyn Any,
+            operator: &'a str,
+            right_value: &'a dyn Any,
+        ) -> InfixTest<'a> {
             InfixTest {
                 input: input.to_string(),
                 operator: operator.to_string(),
@@ -654,14 +660,17 @@ return 993322;
     #[test]
     fn test_parsing_infix_expressions() {
         let infix_tests: Vec<InfixTest> = vec![
-            InfixTest::new("5 + 5;", 5, "+", 5),
-            InfixTest::new("5 - 5;", 5, "-", 5),
-            InfixTest::new("5 * 5;", 5, "*", 5),
-            InfixTest::new("5 / 5;", 5, "/", 5),
-            InfixTest::new("5 > 5;", 5, ">", 5),
-            InfixTest::new("5 < 5;", 5, "<", 5),
-            InfixTest::new("5 == 5;", 5, "==", 5),
-            InfixTest::new("5 != 5;", 5, "!=", 5),
+            InfixTest::new("5 + 5;", &5, "+", &5),
+            InfixTest::new("5 - 5;", &5, "-", &5),
+            InfixTest::new("5 * 5;", &5, "*", &5),
+            InfixTest::new("5 / 5;", &5, "/", &5),
+            InfixTest::new("5 > 5;", &5, ">", &5),
+            InfixTest::new("5 < 5;", &5, "<", &5),
+            InfixTest::new("5 == 5;", &5, "==", &5),
+            InfixTest::new("5 != 5;", &5, "!=", &5),
+            InfixTest::new("true == true", &true, "==", &true),
+            InfixTest::new("true != false", &true, "!=", &false),
+            InfixTest::new("false == false", &false, "==", &false),
         ];
 
         infix_tests.into_iter().for_each(|test| {
@@ -684,13 +693,13 @@ return 993322;
                 e => panic!("expression not InfixExpression, got {:?}", e),
             };
 
-            assert!(test_integer_literal(*infix.left, test.left_value,));
+            assert!(test_literal_expression(*infix.left, test.left_value,));
             assert_eq!(
                 infix.operator, test.operator,
                 "infix.operator is not {}. Got: {}",
                 infix.operator, test.operator
             );
-            assert!(test_integer_literal(*infix.right, test.right_value,));
+            assert!(test_literal_expression(*infix.right, test.right_value,));
         })
     }
 
