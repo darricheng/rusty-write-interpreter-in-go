@@ -813,11 +813,39 @@ return 993322;
         true
     }
 
+    fn test_boolean_literal(bool_expr: Expression, value: bool) -> bool {
+        let bool_literal = if let Expression::Boolean(ref matched_bool) = bool_expr {
+            matched_bool
+        } else {
+            println!("bool_expr not Expression::Boolean, got: {:?}", bool_expr);
+            return false;
+        };
+
+        if bool_literal.value != value {
+            println!(
+                "bool_literal.value not {}, got: {}",
+                value, bool_literal.value
+            );
+            false
+        } else if bool_expr.token_literal() != value.to_string() {
+            println!(
+                "bool_expr.token_literal not {}, got: {}",
+                value,
+                bool_expr.token_literal()
+            );
+            false
+        } else {
+            true
+        }
+    }
+
     fn test_literal_expression(expr: Expression, expected: &dyn Any) -> bool {
         if let Some(num) = expected.downcast_ref::<i32>() {
             test_integer_literal(expr, *num)
         } else if let Some(str) = expected.downcast_ref::<String>() {
             test_identifier(expr, str.to_string())
+        } else if let Some(bool) = expected.downcast_ref::<bool>() {
+            test_boolean_literal(expr, *bool)
         } else {
             println!("Type of expression not handled: {:?}", expected);
             false
