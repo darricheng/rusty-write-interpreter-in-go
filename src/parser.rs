@@ -1,6 +1,7 @@
 use crate::ast::{
-    Expression, ExpressionStatement, IdentifierStruct, InfixExpressionStruct, IntegerLiteralStruct,
-    LetStatement, PrefixExpressionStruct, Program, ReturnStatement, Statement,
+    BooleanStruct, Expression, ExpressionStatement, IdentifierStruct, InfixExpressionStruct,
+    IntegerLiteralStruct, LetStatement, PrefixExpressionStruct, Program, ReturnStatement,
+    Statement,
 };
 use crate::token::TokenType;
 use crate::{lexer::Lexer, token::Token};
@@ -209,6 +210,8 @@ impl Parser {
             TokenType::Int => Some(self.parse_integer_literal()),
             TokenType::Bang => Some(self.parse_prefix_expression()),
             TokenType::Minus => Some(self.parse_prefix_expression()),
+            TokenType::True => Some(self.parse_boolean_expression()),
+            TokenType::False => Some(self.parse_boolean_expression()),
             _ => None,
         }
     }
@@ -247,6 +250,13 @@ impl Parser {
         let right = self.parse_expression(PREFIX).unwrap();
 
         Expression::PrefixExpression(PrefixExpressionStruct::new(token, operator, right))
+    }
+
+    fn parse_boolean_expression(&mut self) -> Expression {
+        Expression::Boolean(BooleanStruct::new(
+            self.current_token.clone(),
+            matches!(self.current_token.token_type, TokenType::True),
+        ))
     }
 
     // TODO: tmp Option return type until we implement all TokenTypes
@@ -849,11 +859,11 @@ return 993322;
     fn test_boolean_expression() {
         let tests = vec![
             BooleanExpressionTest {
-                input: "true".to_string(),
+                input: "true;".to_string(),
                 expected_boolean: true,
             },
             BooleanExpressionTest {
-                input: "false".to_string(),
+                input: "false;".to_string(),
                 expected_boolean: false,
             },
         ];
@@ -871,7 +881,17 @@ return 993322;
                 program.statements.len()
             );
 
-            // TODO: finish up this test
+            let bool_expr = extract_expression(program);
+            let bool = match bool_expr {
+                Expression::Boolean(ref b) => b,
+                e => panic!("expression not Boolean, got {:?}", e),
+            };
+
+            assert_eq!(
+                test.expected_boolean, bool.value,
+                "bool.value not {}, got: {}",
+                test.expected_boolean, bool.value
+            );
         });
     }
 

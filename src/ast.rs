@@ -108,6 +108,7 @@ pub enum Expression {
     IntegerLiteral(IntegerLiteralStruct),
     PrefixExpression(PrefixExpressionStruct),
     InfixExpression(InfixExpressionStruct),
+    Boolean(BooleanStruct),
 }
 impl Expression {
     pub fn get_expression(&self) -> Option<IdentifierStruct> {
@@ -124,6 +125,7 @@ impl Node for Expression {
             Expression::IntegerLiteral(i) => i.token.literal.clone(),
             Expression::PrefixExpression(pe) => pe.token.literal.clone(),
             Expression::InfixExpression(ie) => ie.token.literal.clone(),
+            Expression::Boolean(b) => b.token.literal.clone(),
         }
     }
     fn string(&self) -> String {
@@ -154,6 +156,7 @@ impl Node for Expression {
 
                 str_val
             }
+            Expression::Boolean(b) => b.token.literal.clone(),
         }
     }
 }
@@ -216,6 +219,17 @@ impl InfixExpressionStruct {
             operator,
             right: Box::new(right),
         }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct BooleanStruct {
+    token: Token,
+    pub value: bool,
+}
+impl BooleanStruct {
+    pub fn new(token: Token, value: bool) -> Self {
+        BooleanStruct { token, value }
     }
 }
 
