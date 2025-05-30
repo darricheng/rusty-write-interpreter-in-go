@@ -557,25 +557,27 @@ return 993322;
         );
     }
 
-    struct PrefixTest {
+    struct PrefixTest<'a> {
         input: String,
         operator: String,
-        integer_value: i32,
+        value: &'a dyn Any,
     }
-    impl PrefixTest {
-        fn new(input: &str, operator: &str, integer_value: i32) -> PrefixTest {
+    impl PrefixTest<'_> {
+        fn new<'a>(input: &'a str, operator: &'a str, value: &'a dyn Any) -> PrefixTest<'a> {
             PrefixTest {
                 input: input.to_string(),
                 operator: operator.to_string(),
-                integer_value,
+                value,
             }
         }
     }
     #[test]
     fn test_parsing_prefix_expressions() {
         let prefix_tests: Vec<PrefixTest> = vec![
-            PrefixTest::new("!5;", "!", 5),
-            PrefixTest::new("-15;", "-", 15),
+            PrefixTest::new("!5;", "!", &5),
+            PrefixTest::new("-15;", "-", &15),
+            PrefixTest::new("!true;", "!", &true),
+            PrefixTest::new("!false;", "!", &false),
         ];
 
         prefix_tests.into_iter().for_each(|test| {
@@ -603,7 +605,7 @@ return 993322;
                 prefix.operator, test.operator
             );
 
-            assert!(test_integer_literal(*prefix.right, test.integer_value,));
+            assert!(test_literal_expression(*prefix.right, test.value));
         });
     }
 
