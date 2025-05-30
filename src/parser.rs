@@ -212,6 +212,7 @@ impl Parser {
             TokenType::Minus => Some(self.parse_prefix_expression()),
             TokenType::True => Some(self.parse_boolean_expression()),
             TokenType::False => Some(self.parse_boolean_expression()),
+            TokenType::LParen => self.parse_grouped_expression(),
             _ => None,
         }
     }
@@ -257,6 +258,18 @@ impl Parser {
             self.current_token.clone(),
             matches!(self.current_token.token_type, TokenType::True),
         ))
+    }
+
+    fn parse_grouped_expression(&mut self) -> Option<Expression> {
+        self.next_token();
+
+        let expression = self.parse_expression(LOWEST);
+
+        if !self.expect_peek(TokenType::RParen) {
+            None
+        } else {
+            expression
+        }
     }
 
     // TODO: tmp Option return type until we implement all TokenTypes
@@ -772,6 +785,23 @@ return 993322;
             OperatorPrecedenceParsingTest::new(
                 "3 < 5 == true".to_string(),
                 "((3 < 5) == true)".to_string(),
+            ),
+            OperatorPrecedenceParsingTest::new(
+                "1 + (2 + 3) + 4".to_string(),
+                "((1 + (2 + 3)) + 4)".to_string(),
+            ),
+            OperatorPrecedenceParsingTest::new(
+                "(5 + 5) * 2".to_string(),
+                "((5 + 5) * 2)".to_string(),
+            ),
+            OperatorPrecedenceParsingTest::new(
+                "2 / (5 + 5)".to_string(),
+                "(2 / (5 + 5))".to_string(),
+            ),
+            OperatorPrecedenceParsingTest::new("-(5 + 5)".to_string(), "(-(5 + 5))".to_string()),
+            OperatorPrecedenceParsingTest::new(
+                "!(true == true)".to_string(),
+                "(!(true == true))".to_string(),
             ),
         ];
 
