@@ -723,86 +723,47 @@ return 993322;
         expected: String,
     }
     impl OperatorPrecedenceParsingTest {
-        fn new(input: String, expected: String) -> OperatorPrecedenceParsingTest {
-            OperatorPrecedenceParsingTest { input, expected }
+        fn new(input: &str, expected: &str) -> OperatorPrecedenceParsingTest {
+            OperatorPrecedenceParsingTest {
+                input: input.to_string(),
+                expected: expected.to_string(),
+            }
         }
     }
     #[test]
     fn test_operator_precedence_parsing() {
         let tests: Vec<OperatorPrecedenceParsingTest> = vec![
-            OperatorPrecedenceParsingTest::new("-a * b".to_string(), "((-a) * b)".to_string()),
-            OperatorPrecedenceParsingTest::new("!-a".to_string(), "(!(-a))".to_string()),
+            OperatorPrecedenceParsingTest::new("-a * b", "((-a) * b)"),
+            OperatorPrecedenceParsingTest::new("!-a", "(!(-a))"),
+            OperatorPrecedenceParsingTest::new("a + b + c", "((a + b) + c)"),
+            OperatorPrecedenceParsingTest::new("a + b - c", "((a + b) - c)"),
+            OperatorPrecedenceParsingTest::new("a * b * c", "((a * b) * c)"),
+            OperatorPrecedenceParsingTest::new("a * b / c", "((a * b) / c)"),
+            OperatorPrecedenceParsingTest::new("a + b / c", "(a + (b / c))"),
             OperatorPrecedenceParsingTest::new(
-                "a + b + c".to_string(),
-                "((a + b) + c)".to_string(),
+                "a + b * c + d / e - f",
+                "(((a + (b * c)) + (d / e)) - f)",
+            ),
+            OperatorPrecedenceParsingTest::new("3 + 4; -5 * 5", "(3 + 4)((-5) * 5)"),
+            OperatorPrecedenceParsingTest::new("5 > 4 == 3 < 4", "((5 > 4) == (3 < 4))"),
+            OperatorPrecedenceParsingTest::new("5 < 4 != 3 > 4", "((5 < 4) != (3 > 4))"),
+            OperatorPrecedenceParsingTest::new(
+                "3 + 4 * 5 == 3 * 1 + 4 * 5",
+                "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))",
             ),
             OperatorPrecedenceParsingTest::new(
-                "a + b - c".to_string(),
-                "((a + b) - c)".to_string(),
+                "3 + 4 * 5 == 3 * 1 + 4 * 5",
+                "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))",
             ),
-            OperatorPrecedenceParsingTest::new(
-                "a * b * c".to_string(),
-                "((a * b) * c)".to_string(),
-            ),
-            OperatorPrecedenceParsingTest::new(
-                "a * b / c".to_string(),
-                "((a * b) / c)".to_string(),
-            ),
-            OperatorPrecedenceParsingTest::new(
-                "a + b / c".to_string(),
-                "(a + (b / c))".to_string(),
-            ),
-            OperatorPrecedenceParsingTest::new(
-                "a + b * c + d / e - f".to_string(),
-                "(((a + (b * c)) + (d / e)) - f)".to_string(),
-            ),
-            OperatorPrecedenceParsingTest::new(
-                "3 + 4; -5 * 5".to_string(),
-                "(3 + 4)((-5) * 5)".to_string(),
-            ),
-            OperatorPrecedenceParsingTest::new(
-                "5 > 4 == 3 < 4".to_string(),
-                "((5 > 4) == (3 < 4))".to_string(),
-            ),
-            OperatorPrecedenceParsingTest::new(
-                "5 < 4 != 3 > 4".to_string(),
-                "((5 < 4) != (3 > 4))".to_string(),
-            ),
-            OperatorPrecedenceParsingTest::new(
-                "3 + 4 * 5 == 3 * 1 + 4 * 5".to_string(),
-                "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))".to_string(),
-            ),
-            OperatorPrecedenceParsingTest::new(
-                "3 + 4 * 5 == 3 * 1 + 4 * 5".to_string(),
-                "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))".to_string(),
-            ),
-            OperatorPrecedenceParsingTest::new("true".to_string(), "true".to_string()),
-            OperatorPrecedenceParsingTest::new("false".to_string(), "false".to_string()),
-            OperatorPrecedenceParsingTest::new(
-                "3 > 5 == false".to_string(),
-                "((3 > 5) == false)".to_string(),
-            ),
-            OperatorPrecedenceParsingTest::new(
-                "3 < 5 == true".to_string(),
-                "((3 < 5) == true)".to_string(),
-            ),
-            OperatorPrecedenceParsingTest::new(
-                "1 + (2 + 3) + 4".to_string(),
-                "((1 + (2 + 3)) + 4)".to_string(),
-            ),
-            OperatorPrecedenceParsingTest::new(
-                "(5 + 5) * 2".to_string(),
-                "((5 + 5) * 2)".to_string(),
-            ),
-            OperatorPrecedenceParsingTest::new(
-                "2 / (5 + 5)".to_string(),
-                "(2 / (5 + 5))".to_string(),
-            ),
-            OperatorPrecedenceParsingTest::new("-(5 + 5)".to_string(), "(-(5 + 5))".to_string()),
-            OperatorPrecedenceParsingTest::new(
-                "!(true == true)".to_string(),
-                "(!(true == true))".to_string(),
-            ),
+            OperatorPrecedenceParsingTest::new("true", "true"),
+            OperatorPrecedenceParsingTest::new("false", "false"),
+            OperatorPrecedenceParsingTest::new("3 > 5 == false", "((3 > 5) == false)"),
+            OperatorPrecedenceParsingTest::new("3 < 5 == true", "((3 < 5) == true)"),
+            OperatorPrecedenceParsingTest::new("1 + (2 + 3) + 4", "((1 + (2 + 3)) + 4)"),
+            OperatorPrecedenceParsingTest::new("(5 + 5) * 2", "((5 + 5) * 2)"),
+            OperatorPrecedenceParsingTest::new("2 / (5 + 5)", "(2 / (5 + 5))"),
+            OperatorPrecedenceParsingTest::new("-(5 + 5)", "(-(5 + 5))"),
+            OperatorPrecedenceParsingTest::new("!(true == true)", "(!(true == true))"),
         ];
 
         let mut num_fail = 0;
