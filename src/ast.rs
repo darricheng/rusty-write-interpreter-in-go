@@ -8,7 +8,7 @@ pub trait Node {
 /*************
 * Statements *
 *************/
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Statement {
     Let(LetStatement),
     Return(ReturnStatement),
@@ -61,7 +61,7 @@ impl Node for Statement {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LetStatement {
     pub token: Token,
     pub name: Expression,          // Should only ever be Expression::Identifier
@@ -77,7 +77,7 @@ impl LetStatement {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ReturnStatement {
     token: Token,
     value: Option<Expression>, // TODO: temp Option until we parse expressions in Return
@@ -88,7 +88,7 @@ impl ReturnStatement {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ExpressionStatement {
     token: Token,
     pub expression: Option<Expression>, // TODO: temp Option until we parse expressions in Return
@@ -109,6 +109,7 @@ pub enum Expression {
     PrefixExpression(PrefixExpressionStruct),
     InfixExpression(InfixExpressionStruct),
     Boolean(BooleanStruct),
+    IfExpression(IfExpressionStruct),
 }
 impl Expression {
     pub fn get_expression(&self) -> Option<IdentifierStruct> {
@@ -126,6 +127,7 @@ impl Node for Expression {
             Expression::PrefixExpression(pe) => pe.token.literal.clone(),
             Expression::InfixExpression(ie) => ie.token.literal.clone(),
             Expression::Boolean(b) => b.token.literal.clone(),
+            Expression::IfExpression(ie) => ie.token.literal.clone(),
         }
     }
     fn string(&self) -> String {
@@ -157,6 +159,20 @@ impl Node for Expression {
                 str_val
             }
             Expression::Boolean(b) => b.token.literal.clone(),
+            Expression::IfExpression(ie) => {
+                let mut str_val = String::new();
+                str_val.push_str("if");
+                str_val.push_str(&ie.condition.string());
+                str_val.push(' ');
+                str_val.push_str(&ie.consequence.string());
+
+                if let Some(alternative) = &ie.alternative {
+                    str_val.push_str("else ");
+                    str_val.push_str(&alternative.string());
+                }
+
+                str_val
+            }
         }
     }
 }
@@ -230,6 +246,42 @@ pub struct BooleanStruct {
 impl BooleanStruct {
     pub fn new(token: Token, value: bool) -> Self {
         BooleanStruct { token, value }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct IfExpressionStruct {
+    token: Token,
+    // TODO: is Box correct here for indirection?
+    // It's probably the easiest for now though
+    pub condition: Box<Expression>,
+    // The Go example uses pointers. We Box the BlockStatements
+    // to make this easier to use without all the lifetime annotations.
+    pub consequence: Box<BlockStatement>,
+    pub alternative: Option<Box<BlockStatement>>,
+}
+
+/*********
+* Blocks *
+*********/
+#[derive(Debug, Clone)]
+pub struct BlockStatement {
+    token: Token, // the { token
+    pub statements: Vec<Statement>,
+}
+
+impl Node for BlockStatement {
+    fn token_literal(&self) -> String {
+        self.token.literal.clone()
+    }
+    fn string(&self) -> String {
+        let mut str_val = String::new();
+
+        self.statements.iter().for_each(|stmt| {
+            str_val.push_str(&stmt.string());
+        });
+
+        str_val
     }
 }
 

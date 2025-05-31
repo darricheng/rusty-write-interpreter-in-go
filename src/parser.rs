@@ -480,11 +480,8 @@ return 993322;
         );
     }
 
-    fn extract_expression(program: Program) -> Expression {
-        let stmt = program
-            .statements
-            .get(0)
-            .expect("Did not have any statements.");
+    fn extract_expression(statements: Vec<Statement>) -> Expression {
+        let stmt = statements.get(0).expect("Did not have any statements.");
 
         let expression_stmt = match stmt {
             Statement::Expression(s) => s,
@@ -514,7 +511,7 @@ return 993322;
             program.statements
         );
 
-        let ident_expression = extract_expression(program);
+        let ident_expression = extract_expression(program.statements);
         let ident = match ident_expression {
             Expression::Identifier(ref i) => i,
             e => panic!("expression not Identifier, got {:?}", e),
@@ -550,7 +547,7 @@ return 993322;
             program.statements
         );
 
-        let integer_literal_expression = extract_expression(program);
+        let integer_literal_expression = extract_expression(program.statements);
         let integer_literal = match integer_literal_expression {
             Expression::IntegerLiteral(ref i) => i,
             e => panic!("expression not IntegerLiteral, got {:?}", e),
@@ -606,7 +603,7 @@ return 993322;
                 program.statements
             );
 
-            let prefix_expression = extract_expression(program);
+            let prefix_expression = extract_expression(program.statements);
             let prefix = match prefix_expression {
                 Expression::PrefixExpression(p) => p,
                 e => panic!("expression not PrefixExpression, got {:?}", e),
@@ -702,7 +699,7 @@ return 993322;
                 program.statements
             );
 
-            let infix_expression = extract_expression(program);
+            let infix_expression = extract_expression(program.statements);
             let infix = match infix_expression {
                 Expression::InfixExpression(ie) => ie,
                 e => panic!("expression not InfixExpression, got {:?}", e),
@@ -785,7 +782,7 @@ return 993322;
         assert_eq!(num_fail, 0);
     }
 
-    fn test_identifier(ident_expression: Expression, value: String) -> bool {
+    fn test_identifier(ident_expression: Expression, value: &str) -> bool {
         let identifier_literal = if let Expression::Identifier(ref matched_ident) = ident_expression
         {
             matched_ident
@@ -845,7 +842,7 @@ return 993322;
         if let Some(num) = expected.downcast_ref::<i32>() {
             test_integer_literal(expr, *num)
         } else if let Some(str) = expected.downcast_ref::<String>() {
-            test_identifier(expr, str.to_string())
+            test_identifier(expr, str)
         } else if let Some(bool) = expected.downcast_ref::<bool>() {
             test_boolean_literal(expr, *bool)
         } else {
@@ -857,7 +854,7 @@ return 993322;
     fn test_infix_expression(
         expr: Expression,
         left: &dyn Any,
-        operator: String,
+        operator: &str,
         right: &dyn Any,
     ) -> bool {
         let op_expr = if let Expression::InfixExpression(matched_expr) = expr {
@@ -921,7 +918,7 @@ return 993322;
                 program.statements.len()
             );
 
-            let bool_expr = extract_expression(program);
+            let bool_expr = extract_expression(program.statements);
             let bool = match bool_expr {
                 Expression::Boolean(ref b) => b,
                 e => panic!("expression not Boolean, got {:?}", e),
@@ -936,7 +933,50 @@ return 993322;
     }
 
     #[test]
-    fn test_if_expression() {}
+    fn test_if_expression() {
+        let input = "if (x < y) { x }";
+
+        let l = Lexer::new(input);
+        let mut p = Parser::new(l);
+        let program = p.parse_program();
+        check_parser_errors(p);
+
+        assert_eq!(
+            program.statements.len(),
+            1,
+            "Program has wrong number of statements. Got: {}",
+            program.statements.len()
+        );
+
+        let stmt = extract_expression(program.statements);
+        let if_exp = match stmt {
+            Expression::IfExpression(ie) => ie,
+            e => panic!("expression not IfExpression, got {:?}", e),
+        };
+
+        assert!(
+            test_infix_expression(*if_exp.condition, &"x", "<", &"y"),
+            "test_infix_expression failed."
+        );
+
+        assert_eq!(
+            if_exp.consequence.statements.len(),
+            1,
+            "consequence is not 1 statement. Got: {}",
+            if_exp.consequence.statements.len()
+        );
+
+        let consequence = extract_expression(if_exp.consequence.statements);
+
+        assert!(test_identifier(consequence, "x"), "test_identifier failed.");
+
+        if let None = if_exp.alternative {
+            panic!(
+                "if_exp.alternative was not None. Got: {:?}",
+                if_exp.alternative
+            );
+        }
+    }
 
     #[test]
     fn test_if_else_expression() {}
