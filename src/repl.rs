@@ -22,7 +22,7 @@ pub fn start() {
             .read_line(&mut input)
             .expect("Failed to read user input.");
 
-        let l = Lexer::new(input);
+        let l = Lexer::new(&input);
 
         let mut p = Parser::new(l);
         let program = p.parse_program();

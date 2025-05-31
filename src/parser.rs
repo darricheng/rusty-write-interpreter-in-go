@@ -378,7 +378,7 @@ let x = 5;
 let y = 10;
 let foobar = 838383;
 "#;
-        let l = Lexer::new(input.to_string());
+        let l = Lexer::new(input);
         let mut p = Parser::new(l);
 
         let program = p.parse_program();
@@ -445,7 +445,7 @@ return 10;
 return 993322;
 "#;
 
-        let l = Lexer::new(input.to_string());
+        let l = Lexer::new(input);
         let mut p = Parser::new(l);
 
         let program = p.parse_program();
@@ -501,7 +501,7 @@ return 993322;
     fn test_identifier_expression() {
         let input = "foobar;";
 
-        let l = Lexer::new(input.to_string());
+        let l = Lexer::new(input);
         let mut p = Parser::new(l);
         let program = p.parse_program();
         check_parser_errors(p);
@@ -537,7 +537,7 @@ return 993322;
     fn test_integer_literal_expression() {
         let input = "5;";
 
-        let l = Lexer::new(input.to_string());
+        let l = Lexer::new(input);
         let mut p = Parser::new(l);
         let program = p.parse_program();
         check_parser_errors(p);
@@ -594,7 +594,7 @@ return 993322;
         ];
 
         prefix_tests.into_iter().for_each(|test| {
-            let l = Lexer::new(test.input);
+            let l = Lexer::new(&test.input);
             let mut p = Parser::new(l);
             let program = p.parse_program();
             check_parser_errors(p);
@@ -689,7 +689,7 @@ return 993322;
         ];
 
         infix_tests.into_iter().for_each(|test| {
-            let l = Lexer::new(test.input);
+            let l = Lexer::new(&test.input);
             let mut p = Parser::new(l);
             let program = p.parse_program();
             check_parser_errors(p);
@@ -769,7 +769,7 @@ return 993322;
         let mut num_fail = 0;
 
         tests.into_iter().for_each(|test| {
-            let l = Lexer::new(test.input);
+            let l = Lexer::new(&test.input);
             let mut p = Parser::new(l);
             let program = p.parse_program();
             check_parser_errors(p);
@@ -909,7 +909,7 @@ return 993322;
         ];
 
         tests.into_iter().for_each(|test| {
-            let l = Lexer::new(test.input);
+            let l = Lexer::new(&test.input);
             let mut p = Parser::new(l);
             let program = p.parse_program();
             check_parser_errors(p);

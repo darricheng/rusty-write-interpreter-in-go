@@ -19,9 +19,9 @@ pub struct Lexer {
 }
 
 impl Lexer {
-    pub fn new(input: String) -> Lexer {
+    pub fn new(input: &str) -> Lexer {
         let mut l = Lexer {
-            input,
+            input: input.to_string(),
             position: 0,
             read_position: 0,
             ch: 0, // null byte in ascii
@@ -247,7 +247,7 @@ if (5 < 10) {
             Token::new_from_str(TokenType::Eof, "\0"),
         ];
 
-        let mut l = Lexer::new(input.to_string());
+        let mut l = Lexer::new(input);
 
         for expected_token in tests {
             let tok: Token = l.next_token();
