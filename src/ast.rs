@@ -109,35 +109,24 @@ pub enum Expression {
     FunctionExpression(FunctionLiteralStruct),
 }
 impl Expression {
-    pub fn get_expression(&self) -> Option<IdentifierStruct> {
+    fn as_node(&self) -> &dyn Node {
         match self {
-            Expression::Identifier(i) => Some(i.clone()),
-            _ => None,
+            Expression::Identifier(i) => i,
+            Expression::IntegerLiteral(i) => i,
+            Expression::PrefixExpression(pe) => pe,
+            Expression::InfixExpression(ie) => ie,
+            Expression::Boolean(b) => b,
+            Expression::IfExpression(ie) => ie,
+            Expression::FunctionExpression(fe) => fe,
         }
     }
 }
 impl Node for Expression {
     fn token_literal(&self) -> String {
-        match self {
-            Expression::Identifier(i) => i.token_literal(),
-            Expression::IntegerLiteral(i) => i.token_literal(),
-            Expression::PrefixExpression(pe) => pe.token_literal(),
-            Expression::InfixExpression(ie) => ie.token_literal(),
-            Expression::Boolean(b) => b.token_literal(),
-            Expression::IfExpression(ie) => ie.token_literal(),
-            Expression::FunctionExpression(fe) => fe.token_literal(),
-        }
+        self.as_node().token_literal()
     }
     fn string(&self) -> String {
-        match self {
-            Expression::Identifier(i) => i.string(),
-            Expression::IntegerLiteral(i) => i.string(),
-            Expression::PrefixExpression(pe) => pe.string(),
-            Expression::InfixExpression(ie) => ie.string(),
-            Expression::Boolean(b) => b.string(),
-            Expression::IfExpression(ie) => ie.string(),
-            Expression::FunctionExpression(fe) => fe.string(),
-        }
+        self.as_node().string()
     }
 }
 
