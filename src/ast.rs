@@ -261,6 +261,22 @@ pub struct IfExpressionStruct {
     pub alternative: Option<Box<BlockStatement>>,
 }
 
+impl IfExpressionStruct {
+    pub fn new(
+        token: Token,
+        condition: Expression,
+        consequence: BlockStatement,
+        alternative: Option<BlockStatement>,
+    ) -> Self {
+        IfExpressionStruct {
+            token,
+            condition: Box::new(condition),
+            consequence: Box::new(consequence),
+            alternative: alternative.map(|a| Box::new(a)),
+        }
+    }
+}
+
 /*********
 * Blocks *
 *********/
@@ -268,6 +284,12 @@ pub struct IfExpressionStruct {
 pub struct BlockStatement {
     token: Token, // the { token
     pub statements: Vec<Statement>,
+}
+
+impl BlockStatement {
+    pub fn new(token: Token, statements: Vec<Statement>) -> Self {
+        BlockStatement { token, statements }
+    }
 }
 
 impl Node for BlockStatement {

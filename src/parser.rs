@@ -1,7 +1,7 @@
 use crate::ast::{
-    BooleanStruct, Expression, ExpressionStatement, IdentifierStruct, InfixExpressionStruct,
-    IntegerLiteralStruct, LetStatement, PrefixExpressionStruct, Program, ReturnStatement,
-    Statement,
+    BlockStatement, BooleanStruct, Expression, ExpressionStatement, IdentifierStruct,
+    IfExpressionStruct, InfixExpressionStruct, IntegerLiteralStruct, LetStatement,
+    PrefixExpressionStruct, Program, ReturnStatement, Statement,
 };
 use crate::token::TokenType;
 use crate::{lexer::Lexer, token::Token};
@@ -213,6 +213,7 @@ impl Parser {
             TokenType::True => Some(self.parse_boolean_expression()),
             TokenType::False => Some(self.parse_boolean_expression()),
             TokenType::LParen => self.parse_grouped_expression(),
+            TokenType::If => self.parse_if_expression(),
             _ => None,
         }
     }
@@ -270,6 +271,50 @@ impl Parser {
         } else {
             expression
         }
+    }
+
+    fn parse_if_expression(&mut self) -> Option<Expression> {
+        let if_token = self.current_token.clone();
+
+        if !self.expect_peek(TokenType::LParen) {
+            return None;
+        };
+
+        self.next_token();
+        let condition = self.parse_expression(LOWEST);
+
+        if !self.expect_peek(TokenType::RParen) {
+            return None;
+        };
+
+        if !self.expect_peek(TokenType::LBrace) {
+            return None;
+        };
+
+        let consequence = self.parse_block_statement();
+
+        Some(Expression::IfExpression(IfExpressionStruct::new(
+            if_token,
+            condition.unwrap(), // TODO: handle this better?
+            consequence,
+            None,
+        )))
+    }
+
+    fn parse_block_statement(&mut self) -> BlockStatement {
+        let token = self.current_token.clone();
+        let mut statements = Vec::new();
+
+        self.next_token();
+
+        while !self.cur_token_is(TokenType::RBrace) && !self.cur_token_is(TokenType::Eof) {
+            if let Some(stmt) = self.parse_statement() {
+                statements.push(stmt);
+            }
+            self.next_token();
+        }
+
+        BlockStatement::new(token, statements)
     }
 
     // TODO: tmp Option return type until we implement all TokenTypes
@@ -360,7 +405,7 @@ pub fn check_parser_errors(p: Parser) {
 mod tests {
     use std::any::{type_name_of_val, Any};
 
-    use crate::ast::{Expression, Node, Program, Statement};
+    use crate::ast::{Expression, Node, Statement};
     use crate::lexer::Lexer;
     use crate::parser::{check_parser_errors, Parser};
 
@@ -955,8 +1000,14 @@ return 993322;
         };
 
         assert!(
-            test_infix_expression(*if_exp.condition, &"x", "<", &"y"),
-            "test_infix_expression failed."
+            test_infix_expression(
+                *if_exp.condition.clone(),
+                &"x".to_string(),
+                "<",
+                &"y".to_string()
+            ),
+            "test_infix_expression failed. expression: {:?}",
+            *if_exp.condition
         );
 
         assert_eq!(
@@ -970,11 +1021,8 @@ return 993322;
 
         assert!(test_identifier(consequence, "x"), "test_identifier failed.");
 
-        if let None = if_exp.alternative {
-            panic!(
-                "if_exp.alternative was not None. Got: {:?}",
-                if_exp.alternative
-            );
+        if let Some(alt) = if_exp.alternative {
+            panic!("if_exp.alternative was not None. Got: {:?}", alt);
         }
     }
 
