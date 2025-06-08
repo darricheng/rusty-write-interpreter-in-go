@@ -293,11 +293,23 @@ impl Parser {
 
         let consequence = self.parse_block_statement();
 
+        let mut alternative = None;
+
+        if self.peek_token_is(TokenType::Else) {
+            self.next_token();
+
+            if !self.expect_peek(TokenType::LBrace) {
+                return None;
+            }
+
+            alternative = Some(self.parse_block_statement());
+        }
+
         Some(Expression::IfExpression(IfExpressionStruct::new(
             if_token,
             condition.unwrap(), // TODO: handle this better?
             consequence,
-            None,
+            alternative,
         )))
     }
 
@@ -1049,7 +1061,7 @@ return 993322;
         };
 
         assert!(
-            test_infix_expression(*if_exp.condition, &"x", "<", &"y"),
+            test_infix_expression(*if_exp.condition, &"x".to_string(), "<", &"y".to_string()),
             "test_infix_expression failed."
         );
 
