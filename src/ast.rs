@@ -110,6 +110,7 @@ pub enum Expression {
     InfixExpression(InfixExpressionStruct),
     Boolean(BooleanStruct),
     IfExpression(IfExpressionStruct),
+    FunctionExpression(FunctionLiteralStruct),
 }
 impl Expression {
     pub fn get_expression(&self) -> Option<IdentifierStruct> {
@@ -122,57 +123,24 @@ impl Expression {
 impl Node for Expression {
     fn token_literal(&self) -> String {
         match self {
-            Expression::Identifier(i) => i.token.literal.clone(),
-            Expression::IntegerLiteral(i) => i.token.literal.clone(),
-            Expression::PrefixExpression(pe) => pe.token.literal.clone(),
-            Expression::InfixExpression(ie) => ie.token.literal.clone(),
-            Expression::Boolean(b) => b.token.literal.clone(),
-            Expression::IfExpression(ie) => ie.token.literal.clone(),
+            Expression::Identifier(i) => i.token_literal(),
+            Expression::IntegerLiteral(i) => i.token_literal(),
+            Expression::PrefixExpression(pe) => pe.token_literal(),
+            Expression::InfixExpression(ie) => ie.token_literal(),
+            Expression::Boolean(b) => b.token_literal(),
+            Expression::IfExpression(ie) => ie.token_literal(),
+            Expression::FunctionExpression(fe) => fe.token_literal(),
         }
     }
     fn string(&self) -> String {
         match self {
-            Expression::Identifier(i) => i.value.clone(),
-            Expression::IntegerLiteral(i) => i
-                .value
-                .expect("IntegerLiteralStruct has None value.")
-                .to_string(),
-            Expression::PrefixExpression(pe) => {
-                let mut str_val = String::new();
-                str_val.push('(');
-                str_val.push_str(&pe.operator);
-                str_val.push_str(&pe.right.string());
-                str_val.push(')');
-
-                str_val
-            }
-            Expression::InfixExpression(ie) => {
-                let mut str_val = String::new();
-                str_val.push('(');
-                str_val.push_str(&ie.left.string());
-                str_val.push(' ');
-                str_val.push_str(&ie.operator);
-                str_val.push(' ');
-                str_val.push_str(&ie.right.string());
-                str_val.push(')');
-
-                str_val
-            }
-            Expression::Boolean(b) => b.token.literal.clone(),
-            Expression::IfExpression(ie) => {
-                let mut str_val = String::new();
-                str_val.push_str("if");
-                str_val.push_str(&ie.condition.string());
-                str_val.push(' ');
-                str_val.push_str(&ie.consequence.string());
-
-                if let Some(alternative) = &ie.alternative {
-                    str_val.push_str("else ");
-                    str_val.push_str(&alternative.string());
-                }
-
-                str_val
-            }
+            Expression::Identifier(i) => i.string(),
+            Expression::IntegerLiteral(i) => i.string(),
+            Expression::PrefixExpression(pe) => pe.string(),
+            Expression::InfixExpression(ie) => ie.string(),
+            Expression::Boolean(b) => b.string(),
+            Expression::IfExpression(ie) => ie.string(),
+            Expression::FunctionExpression(fe) => fe.string(),
         }
     }
 }
@@ -187,6 +155,14 @@ impl IdentifierStruct {
         IdentifierStruct { token, value }
     }
 }
+impl Node for IdentifierStruct {
+    fn token_literal(&self) -> String {
+        self.token.literal.clone()
+    }
+    fn string(&self) -> String {
+        self.value.clone()
+    }
+}
 
 #[derive(Debug, Clone)]
 pub struct IntegerLiteralStruct {
@@ -196,6 +172,16 @@ pub struct IntegerLiteralStruct {
 impl IntegerLiteralStruct {
     pub fn new(token: Token, value: Option<i32>) -> IntegerLiteralStruct {
         IntegerLiteralStruct { token, value }
+    }
+}
+impl Node for IntegerLiteralStruct {
+    fn token_literal(&self) -> String {
+        self.token.literal.clone()
+    }
+    fn string(&self) -> String {
+        self.value
+            .expect("IntegerLiteralStruct has None value.")
+            .to_string()
     }
 }
 
@@ -212,6 +198,20 @@ impl PrefixExpressionStruct {
             operator,
             right: Box::new(right),
         }
+    }
+}
+impl Node for PrefixExpressionStruct {
+    fn token_literal(&self) -> String {
+        self.token.literal.clone()
+    }
+    fn string(&self) -> String {
+        let mut str_val = String::new();
+        str_val.push('(');
+        str_val.push_str(&self.operator);
+        str_val.push_str(&self.right.string());
+        str_val.push(')');
+
+        str_val
     }
 }
 
@@ -237,6 +237,23 @@ impl InfixExpressionStruct {
         }
     }
 }
+impl Node for InfixExpressionStruct {
+    fn token_literal(&self) -> String {
+        self.token.literal.clone()
+    }
+    fn string(&self) -> String {
+        let mut str_val = String::new();
+        str_val.push('(');
+        str_val.push_str(&self.left.string());
+        str_val.push(' ');
+        str_val.push_str(&self.operator);
+        str_val.push(' ');
+        str_val.push_str(&self.right.string());
+        str_val.push(')');
+
+        str_val
+    }
+}
 
 #[derive(Debug, Clone)]
 pub struct BooleanStruct {
@@ -246,6 +263,14 @@ pub struct BooleanStruct {
 impl BooleanStruct {
     pub fn new(token: Token, value: bool) -> Self {
         BooleanStruct { token, value }
+    }
+}
+impl Node for BooleanStruct {
+    fn token_literal(&self) -> String {
+        self.token.literal.clone()
+    }
+    fn string(&self) -> String {
+        self.token.literal.clone()
     }
 }
 
@@ -260,7 +285,6 @@ pub struct IfExpressionStruct {
     pub consequence: Box<BlockStatement>,
     pub alternative: Option<Box<BlockStatement>>,
 }
-
 impl IfExpressionStruct {
     pub fn new(
         token: Token,
@@ -274,6 +298,62 @@ impl IfExpressionStruct {
             consequence: Box::new(consequence),
             alternative: alternative.map(|a| Box::new(a)),
         }
+    }
+}
+impl Node for IfExpressionStruct {
+    fn token_literal(&self) -> String {
+        self.token.literal.clone()
+    }
+    fn string(&self) -> String {
+        let mut str_val = String::new();
+        str_val.push_str("if");
+        str_val.push_str(&self.condition.string());
+        str_val.push(' ');
+        str_val.push_str(&self.consequence.string());
+
+        if let Some(alternative) = &self.alternative {
+            str_val.push_str("else ");
+            str_val.push_str(&alternative.string());
+        }
+
+        str_val
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct FunctionLiteralStruct {
+    token: Token, // The `fn` token
+    parameters: Vec<Box<IdentifierStruct>>,
+    body: Box<BlockStatement>,
+}
+impl FunctionLiteralStruct {
+    pub fn new(token: Token, parameters: Vec<IdentifierStruct>, body: BlockStatement) -> Self {
+        FunctionLiteralStruct {
+            token,
+            parameters: parameters.into_iter().map(|p| Box::new(p)).collect(),
+            body: Box::new(body),
+        }
+    }
+}
+impl Node for FunctionLiteralStruct {
+    fn token_literal(&self) -> String {
+        self.token.literal.clone()
+    }
+    fn string(&self) -> String {
+        let mut str_val = String::new();
+
+        let params_str: String = self.parameters.iter().fold(String::new(), |acc, ident| {
+            let ident_str = ident.string();
+            format!("{acc}, {ident_str}")
+        });
+
+        str_val.push_str(&self.token_literal());
+        str_val.push('(');
+        str_val.push_str(&params_str);
+        str_val.push(')');
+        str_val.push_str(&self.body.string());
+
+        str_val
     }
 }
 
