@@ -472,11 +472,10 @@ let foobar = 838383;
         }
 
         if let Statement::Let(statement_data) = s {
-            if statement_data.name.get_expression().unwrap().value != name {
+            if statement_data.name.value != name {
                 println!(
                     "let_statement.name.value not {}, got {}",
-                    name,
-                    statement_data.name.get_expression().unwrap().value
+                    name, statement_data.name.value
                 );
                 return false;
             }

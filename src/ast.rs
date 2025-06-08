@@ -64,16 +64,12 @@ impl Node for Statement {
 #[derive(Debug, Clone)]
 pub struct LetStatement {
     pub token: Token,
-    pub name: Expression,          // Should only ever be Expression::Identifier
+    pub name: IdentifierStruct,
     pub value: Option<Expression>, // TODO: temp Option until we parse expressions in Let
 }
 impl LetStatement {
     pub fn new(token: Token, name: IdentifierStruct, value: Option<Expression>) -> LetStatement {
-        LetStatement {
-            token,
-            name: Expression::Identifier(name),
-            value,
-        }
+        LetStatement { token, name, value }
     }
 }
 
@@ -435,13 +431,13 @@ mod tests {
                     token_type: TokenType::Let,
                     literal: "let".to_string(),
                 },
-                name: Expression::Identifier(IdentifierStruct {
+                name: IdentifierStruct {
                     token: Token {
                         token_type: TokenType::Ident,
                         literal: "myVar".to_string(),
                     },
                     value: "myVar".to_string(),
-                }),
+                },
                 value: Some(Expression::Identifier(IdentifierStruct {
                     token: Token {
                         token_type: TokenType::Ident,
