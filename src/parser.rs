@@ -979,7 +979,65 @@ return 993322;
     }
 
     #[test]
-    fn test_if_else_expression() {}
+    fn test_if_else_expression() {
+        let input = "if (x < y) { x } else { y }";
+
+        let l = Lexer::new(input);
+        let mut p = Parser::new(l);
+        let program = p.parse_program();
+        check_parser_errors(p);
+
+        assert_eq!(
+            program.statements.len(),
+            1,
+            "Program has wrong number of statements. Got: {}",
+            program.statements.len()
+        );
+
+        let stmt = extract_expression(program.statements);
+        let if_exp = match stmt {
+            Expression::IfExpression(ie) => ie,
+            e => panic!("expression not IfExpression, got {:?}", e),
+        };
+
+        assert!(
+            test_infix_expression(*if_exp.condition, &"x", "<", &"y"),
+            "test_infix_expression failed."
+        );
+
+        assert_eq!(
+            if_exp.consequence.statements.len(),
+            1,
+            "consequence is not 1 statement. Got: {}",
+            if_exp.consequence.statements.len()
+        );
+
+        let consequence = extract_expression(if_exp.consequence.statements);
+
+        assert!(
+            test_identifier(consequence, "x"),
+            "test_identifier failed, no `x` found"
+        );
+
+        let alternative_statements = if_exp
+            .alternative
+            .expect("No alternative statements")
+            .statements;
+
+        assert_eq!(
+            alternative_statements.len(),
+            1,
+            "alternative is not 1 statement. Got: {}",
+            alternative_statements.len()
+        );
+
+        let alternative = extract_expression(alternative_statements);
+
+        assert!(
+            test_identifier(alternative, "y"),
+            "test_identifier failed, no `y` found"
+        )
+    }
 
     #[test]
     fn test_function_literal_parsing() {}
