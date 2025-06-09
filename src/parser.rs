@@ -1099,7 +1099,59 @@ return 993322;
     }
 
     #[test]
-    fn test_function_literal_parsing() {}
+    fn test_function_literal_parsing() {
+        let input = "fn(x, y) { x + y; }";
+
+        let l = Lexer::new(input);
+        let mut p = Parser::new(l);
+        let program = p.parse_program();
+        check_parser_errors(p);
+
+        assert_eq!(
+            program.statements.len(),
+            1,
+            "Program has wrong number of statements. Got: {}",
+            program.statements.len()
+        );
+
+        let stmt = extract_expression(program.statements);
+        let fn_literal = match stmt {
+            Expression::FunctionExpression(fe) => fe,
+            e => panic!("expression not FunctionExpression, got {:?}", e),
+        };
+
+        assert_eq!(
+            fn_literal.parameters.len(),
+            2,
+            "Function literal parameters wrong. Want 2, got: {}",
+            fn_literal.parameters.len(),
+        );
+
+        assert!(test_literal_expression(
+            Expression::Identifier(*fn_literal.parameters[0].clone()),
+            &"x".to_string()
+        ));
+        assert!(test_literal_expression(
+            Expression::Identifier(*fn_literal.parameters[1].clone()),
+            &"y".to_string()
+        ));
+
+        assert_eq!(
+            fn_literal.body.statements.len(),
+            1,
+            "Function literal body statements not 1. Got: {}",
+            fn_literal.body.statements.len(),
+        );
+
+        let body_stmt = extract_expression(fn_literal.body.statements);
+
+        assert!(test_infix_expression(
+            body_stmt,
+            &"x".to_string(),
+            "+",
+            &"y".to_string()
+        ));
+    }
 
     #[test]
     fn test_function_parameter_parsing() {}

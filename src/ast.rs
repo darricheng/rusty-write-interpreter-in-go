@@ -308,8 +308,8 @@ impl Node for IfExpressionStruct {
 #[derive(Debug, Clone)]
 pub struct FunctionLiteralStruct {
     token: Token, // The `fn` token
-    parameters: Vec<Box<IdentifierStruct>>,
-    body: Box<BlockStatement>,
+    pub parameters: Vec<Box<IdentifierStruct>>,
+    pub body: Box<BlockStatement>,
 }
 impl FunctionLiteralStruct {
     pub fn new(token: Token, parameters: Vec<IdentifierStruct>, body: BlockStatement) -> Self {
