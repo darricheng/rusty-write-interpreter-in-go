@@ -18,15 +18,15 @@ pub enum Statement {
 impl Node for Statement {
     fn token_literal(&self) -> String {
         match self {
-            Statement::Let(s) => s.token.literal.clone(),
-            Statement::Return(s) => s.token.literal.clone(),
-            Statement::Expression(s) => s.token.literal.clone(),
+            Self::Let(s) => s.token.literal.clone(),
+            Self::Return(s) => s.token.literal.clone(),
+            Self::Expression(s) => s.token.literal.clone(),
         }
     }
     fn string(&self) -> String {
         let mut out = String::new();
         match self {
-            Statement::Let(ls) => {
+            Self::Let(ls) => {
                 out.push_str(&self.token_literal());
                 out.push(' ');
                 out.push_str(&ls.name.string());
@@ -38,7 +38,7 @@ impl Node for Statement {
                 }
                 out.push(';');
             }
-            Statement::Return(rs) => {
+            Self::Return(rs) => {
                 let mut out = String::new();
                 out.push_str(&self.token_literal());
                 out.push(' ');
@@ -49,7 +49,7 @@ impl Node for Statement {
                 }
                 out.push(';');
             }
-            Statement::Expression(es) => {
+            Self::Expression(es) => {
                 // TODO: to be taken out when we can fully build expressions
                 if let Some(expression) = &es.expression {
                     out.push_str(&expression.string());
@@ -68,8 +68,8 @@ pub struct LetStatement {
     pub value: Option<Expression>, // TODO: temp Option until we parse expressions in Let
 }
 impl LetStatement {
-    pub fn new(token: Token, name: IdentifierStruct, value: Option<Expression>) -> LetStatement {
-        LetStatement { token, name, value }
+    pub fn new(token: Token, name: IdentifierStruct, value: Option<Expression>) -> Self {
+        Self { token, name, value }
     }
 }
 
@@ -79,8 +79,8 @@ pub struct ReturnStatement {
     value: Option<Expression>, // TODO: temp Option until we parse expressions in Return
 }
 impl ReturnStatement {
-    pub fn new(token: Token, value: Option<Expression>) -> ReturnStatement {
-        ReturnStatement { token, value }
+    pub fn new(token: Token, value: Option<Expression>) -> Self {
+        Self { token, value }
     }
 }
 
@@ -90,8 +90,8 @@ pub struct ExpressionStatement {
     pub expression: Option<Expression>, // TODO: temp Option until we parse expressions in Return
 }
 impl ExpressionStatement {
-    pub fn new(token: Token, expression: Option<Expression>) -> ExpressionStatement {
-        ExpressionStatement { token, expression }
+    pub fn new(token: Token, expression: Option<Expression>) -> Self {
+        Self { token, expression }
     }
 }
 
@@ -111,13 +111,13 @@ pub enum Expression {
 impl Expression {
     fn as_node(&self) -> &dyn Node {
         match self {
-            Expression::Identifier(i) => i,
-            Expression::IntegerLiteral(i) => i,
-            Expression::PrefixExpression(pe) => pe,
-            Expression::InfixExpression(ie) => ie,
-            Expression::Boolean(b) => b,
-            Expression::IfExpression(ie) => ie,
-            Expression::FunctionExpression(fe) => fe,
+            Self::Identifier(i) => i,
+            Self::IntegerLiteral(i) => i,
+            Self::PrefixExpression(pe) => pe,
+            Self::InfixExpression(ie) => ie,
+            Self::Boolean(b) => b,
+            Self::IfExpression(ie) => ie,
+            Self::FunctionExpression(fe) => fe,
         }
     }
 }
@@ -136,8 +136,8 @@ pub struct IdentifierStruct {
     pub value: String,
 }
 impl IdentifierStruct {
-    pub fn new(token: Token, value: String) -> IdentifierStruct {
-        IdentifierStruct { token, value }
+    pub fn new(token: Token, value: String) -> Self {
+        Self { token, value }
     }
 }
 impl Node for IdentifierStruct {
@@ -155,8 +155,8 @@ pub struct IntegerLiteralStruct {
     pub value: Option<i32>,
 }
 impl IntegerLiteralStruct {
-    pub fn new(token: Token, value: Option<i32>) -> IntegerLiteralStruct {
-        IntegerLiteralStruct { token, value }
+    pub fn new(token: Token, value: Option<i32>) -> Self {
+        Self { token, value }
     }
 }
 impl Node for IntegerLiteralStruct {
@@ -177,8 +177,8 @@ pub struct PrefixExpressionStruct {
     pub right: Box<Expression>,
 }
 impl PrefixExpressionStruct {
-    pub fn new(token: Token, operator: String, right: Expression) -> PrefixExpressionStruct {
-        PrefixExpressionStruct {
+    pub fn new(token: Token, operator: String, right: Expression) -> Self {
+        Self {
             token,
             operator,
             right: Box::new(right),
@@ -213,8 +213,8 @@ impl InfixExpressionStruct {
         left: Expression,
         operator: String,
         right: Expression,
-    ) -> InfixExpressionStruct {
-        InfixExpressionStruct {
+    ) -> Self {
+        Self {
             token,
             left: Box::new(left),
             operator,
@@ -247,7 +247,7 @@ pub struct BooleanStruct {
 }
 impl BooleanStruct {
     pub fn new(token: Token, value: bool) -> Self {
-        BooleanStruct { token, value }
+        Self { token, value }
     }
 }
 impl Node for BooleanStruct {
@@ -277,11 +277,11 @@ impl IfExpressionStruct {
         consequence: BlockStatement,
         alternative: Option<BlockStatement>,
     ) -> Self {
-        IfExpressionStruct {
+        Self {
             token,
             condition: Box::new(condition),
             consequence: Box::new(consequence),
-            alternative: alternative.map(|a| Box::new(a)),
+            alternative: alternative.map(Box::new),
         }
     }
 }
@@ -313,9 +313,9 @@ pub struct FunctionLiteralStruct {
 }
 impl FunctionLiteralStruct {
     pub fn new(token: Token, parameters: Vec<IdentifierStruct>, body: BlockStatement) -> Self {
-        FunctionLiteralStruct {
+        Self {
             token,
-            parameters: parameters.into_iter().map(|p| Box::new(p)).collect(),
+            parameters: parameters.into_iter().map(Box::new).collect(),
             body: Box::new(body),
         }
     }
@@ -353,7 +353,7 @@ pub struct BlockStatement {
 
 impl BlockStatement {
     pub fn new(token: Token, statements: Vec<Statement>) -> Self {
-        BlockStatement { token, statements }
+        Self { token, statements }
     }
 }
 
@@ -379,16 +379,16 @@ pub struct Program {
     pub statements: Vec<Statement>,
 }
 impl Program {
-    pub fn new() -> Program {
-        Program {
+    pub fn new() -> Self {
+        Self {
             statements: Vec::new(),
         }
     }
 }
 impl Node for Program {
     fn token_literal(&self) -> String {
-        if self.statements.len() > 0 {
-            self.statements.get(0).unwrap().token_literal()
+        if !self.statements.is_empty() {
+            self.statements.first().unwrap().token_literal()
         } else {
             String::new()
         }

@@ -19,15 +19,15 @@ pub struct Lexer {
 }
 
 impl Lexer {
-    pub fn new(input: &str) -> Lexer {
-        let mut l = Lexer {
+    pub fn new(input: &str) -> Self {
+        let mut l = Self {
             input: input.to_string(),
             position: 0,
             read_position: 0,
             ch: 0, // null byte in ascii
         };
         l.read_char();
-        return l;
+        l
     }
 
     fn read_char(&mut self) {
@@ -133,13 +133,13 @@ impl Lexer {
 }
 
 fn is_letter(ch: u8) -> bool {
-    97 <= ch && ch <= 122 || // lowercase a-z
-    65 <= ch && ch <= 90 || // uppercase A-Z
+    (97..=122).contains(&ch) || // lowercase a-z
+    (65..=90).contains(&ch) || // uppercase A-Z
     ch == 95 // underscore
 }
 
 fn is_digit(ch: u8) -> bool {
-    48 <= ch && ch <= 57 // 0 to 9
+    (48..=57).contains(&ch) // 0 to 9
 }
 
 #[cfg(test)]

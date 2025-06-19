@@ -20,8 +20,8 @@ const CALL: i32 = 7; // my_function(X)
 #[derive(Clone)]
 struct ParserError(String);
 impl ParserError {
-    fn new(error: String) -> ParserError {
-        ParserError(error)
+    fn new(error: String) -> Self {
+        Self(error)
     }
 }
 
@@ -33,12 +33,12 @@ pub struct Parser {
 }
 
 impl Parser {
-    pub fn new(mut l: Lexer) -> Parser {
+    pub fn new(mut l: Lexer) -> Self {
         // Get the first two tokens for Parser
         let current_token = l.next_token();
         let peek_token = l.next_token();
 
-        Parser {
+        Self {
             l,
             current_token,
             peek_token,
@@ -183,14 +183,14 @@ impl Parser {
     // TODO: Options everywhere! Probably should remove eventually
     fn parse_expression(&mut self, precedence: i32) -> Option<Expression> {
         let mut left_exp = self.prefix_parse_fns(self.current_token.token_type.clone());
-        if let None = left_exp {
+        if left_exp.is_none() {
             self.no_prefix_parse_fn_error(self.current_token.token_type.clone());
             return None;
         }
 
         while !self.peek_token_is(TokenType::Semicolon) && precedence < self.peek_precedence() {
-            let infix_fn_exists = Parser::check_infix_parse_fns(self.peek_token.token_type.clone());
-            if let None = infix_fn_exists {
+            let infix_fn_exists = Self::check_infix_parse_fns(self.peek_token.token_type.clone());
+            if infix_fn_exists.is_none() {
                 return left_exp;
             }
 
@@ -391,17 +391,17 @@ impl Parser {
     }
 
     fn peek_precedence(&self) -> i32 {
-        Parser::precedences(self.peek_token.token_type.clone())
+        Self::precedences(self.peek_token.token_type.clone())
     }
 
     fn cur_precedence(&self) -> i32 {
-        Parser::precedences(self.current_token.token_type.clone())
+        Self::precedences(self.current_token.token_type.clone())
     }
 }
 
 pub fn check_parser_errors(p: Parser) {
     let errors = p.errors();
-    if errors.len() == 0 {
+    if errors.is_empty() {
         return;
     }
     println!("Parser has {} errors.", errors.len());
@@ -490,7 +490,7 @@ let foobar = 838383;
         }
 
         println!("Statement is not Let, got {:?}", s);
-        return false;
+        false
     }
 
     #[test]
@@ -537,7 +537,7 @@ return 993322;
     }
 
     fn extract_expression(statements: Vec<Statement>) -> Expression {
-        let stmt = statements.get(0).expect("Did not have any statements.");
+        let stmt = statements.first().expect("Did not have any statements.");
 
         let expression_stmt = match stmt {
             Statement::Expression(s) => s,
@@ -687,7 +687,7 @@ return 993322;
             } else if il_expression.token_literal() != value.to_string() {
                 println!(
                     "il_expression.token_literal not {}, got: {}",
-                    value.to_string(),
+                    value,
                     il_expression.token_literal()
                 );
                 false
@@ -776,8 +776,8 @@ return 993322;
         expected: String,
     }
     impl OperatorPrecedenceParsingTest {
-        fn new(input: &str, expected: &str) -> OperatorPrecedenceParsingTest {
-            OperatorPrecedenceParsingTest {
+        fn new(input: &str, expected: &str) -> Self {
+            Self {
                 input: input.to_string(),
                 expected: expected.to_string(),
             }

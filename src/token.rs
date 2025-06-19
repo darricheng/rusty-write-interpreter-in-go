@@ -46,16 +46,16 @@ pub struct Token {
 }
 
 impl Token {
-    pub fn new_from_str(token_type: TokenType, str: &str) -> Token {
+    pub fn new_from_str(token_type: TokenType, str: &str) -> Self {
         let literal = str.to_string();
-        Token {
+        Self {
             token_type,
             literal,
         }
     }
-    pub fn new_from_byte(token_type: TokenType, byte: u8) -> Token {
+    pub fn new_from_byte(token_type: TokenType, byte: u8) -> Self {
         let literal: String = from_utf8(&[byte]).unwrap().to_string();
-        Token {
+        Self {
             token_type,
             literal,
         }
