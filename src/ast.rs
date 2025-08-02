@@ -208,12 +208,7 @@ pub struct InfixExpressionStruct {
     pub right: Box<Expression>,
 }
 impl InfixExpressionStruct {
-    pub fn new(
-        token: Token,
-        left: Expression,
-        operator: String,
-        right: Expression,
-    ) -> Self {
+    pub fn new(token: Token, left: Expression, operator: String, right: Expression) -> Self {
         Self {
             token,
             left: Box::new(left),

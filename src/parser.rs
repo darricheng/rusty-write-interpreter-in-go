@@ -1,7 +1,7 @@
 use crate::ast::{
-    BlockStatement, BooleanStruct, Expression, ExpressionStatement, IdentifierStruct,
-    IfExpressionStruct, InfixExpressionStruct, IntegerLiteralStruct, LetStatement,
-    PrefixExpressionStruct, Program, ReturnStatement, Statement,
+    BlockStatement, BooleanStruct, Expression, ExpressionStatement, FunctionLiteralStruct,
+    IdentifierStruct, IfExpressionStruct, InfixExpressionStruct, IntegerLiteralStruct,
+    LetStatement, PrefixExpressionStruct, Program, ReturnStatement, Statement,
 };
 use crate::token::TokenType;
 use crate::{lexer::Lexer, token::Token};
@@ -214,6 +214,7 @@ impl Parser {
             TokenType::False => Some(self.parse_boolean_expression()),
             TokenType::LParen => self.parse_grouped_expression(),
             TokenType::If => self.parse_if_expression(),
+            TokenType::Function => self.parse_function_literal(),
             _ => None,
         }
     }
@@ -311,6 +312,65 @@ impl Parser {
             consequence,
             alternative,
         )))
+    }
+
+    fn parse_function_literal(&mut self) -> Option<Expression> {
+        let fn_token = self.current_token.clone();
+
+        if !self.expect_peek(TokenType::LParen) {
+            return None;
+        }
+
+        let fn_params = match self.parse_function_parameters() {
+            Some(params) => params,
+            None => return None,
+        };
+
+        if !self.expect_peek(TokenType::LBrace) {
+            return None;
+        }
+
+        let fn_body = self.parse_block_statement();
+
+        Some(Expression::FunctionExpression(FunctionLiteralStruct::new(
+            fn_token, fn_params, fn_body,
+        )))
+    }
+
+    fn parse_function_parameters(&mut self) -> Option<Vec<IdentifierStruct>> {
+        let mut identifiers = Vec::<IdentifierStruct>::new();
+
+        if self.peek_token_is(TokenType::RParen) {
+            self.next_token();
+            return Some(identifiers);
+        }
+
+        self.next_token();
+
+        let first_identifier = IdentifierStruct::new(
+            self.current_token.clone(),
+            self.current_token.literal.clone(),
+        );
+
+        identifiers.push(first_identifier);
+
+        while self.peek_token_is(TokenType::Comma) {
+            self.next_token();
+            self.next_token();
+
+            let ident = IdentifierStruct::new(
+                self.current_token.clone(),
+                self.current_token.literal.clone(),
+            );
+
+            identifiers.push(ident);
+        }
+
+        if !self.expect_peek(TokenType::RParen) {
+            return None;
+        }
+
+        Some(identifiers)
     }
 
     fn parse_block_statement(&mut self) -> BlockStatement {
@@ -1153,8 +1213,55 @@ return 993322;
         ));
     }
 
+    struct FnParamTest {
+        input: String,
+        expected_params: Vec<String>,
+    }
+    impl FnParamTest {
+        pub fn new(input: &str, expected_params: Vec<&str>) -> Self {
+            FnParamTest {
+                input: input.to_string(),
+                expected_params: expected_params.iter().map(|v| v.to_string()).collect(),
+            }
+        }
+    }
+
     #[test]
-    fn test_function_parameter_parsing() {}
+    fn test_function_parameter_parsing() {
+        let tests: Vec<FnParamTest> = vec![
+            FnParamTest::new("fn() {};", vec![]),
+            FnParamTest::new("fn(x) {};", vec!["x"]),
+            FnParamTest::new("fn(x, y, z) {};", vec!["x", "y", "z"]),
+        ];
+
+        for t in tests {
+            let l = Lexer::new(&t.input);
+            let mut p = Parser::new(l);
+            let program = p.parse_program();
+            check_parser_errors(p);
+
+            let stmt = extract_expression(program.statements);
+            let fn_literal = match stmt {
+                Expression::FunctionExpression(fe) => fe,
+                e => panic!("expression not FunctionExpression, got {:?}", e),
+            };
+
+            assert_eq!(
+                fn_literal.parameters.len(),
+                t.expected_params.len(),
+                "Length of parameters wrong. Want {}, got {}",
+                t.expected_params.len(),
+                fn_literal.parameters.len()
+            );
+
+            t.expected_params.iter().enumerate().for_each(|(i, ident)| {
+                test_literal_expression(
+                    Expression::Identifier(*fn_literal.parameters[i].clone()),
+                    ident,
+                );
+            });
+        }
+    }
 
     #[test]
     fn test_call_expression_parsing() {}
