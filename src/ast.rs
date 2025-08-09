@@ -107,6 +107,7 @@ pub enum Expression {
     Boolean(BooleanStruct),
     IfExpression(IfExpressionStruct),
     FunctionExpression(FunctionLiteralStruct),
+    CallExpression(CallExpressionStruct),
 }
 impl Expression {
     fn as_node(&self) -> &dyn Node {
@@ -118,6 +119,7 @@ impl Expression {
             Self::Boolean(b) => b,
             Self::IfExpression(ie) => ie,
             Self::FunctionExpression(fe) => fe,
+            Self::CallExpression(ce) => ce,
         }
     }
 }
@@ -332,6 +334,51 @@ impl Node for FunctionLiteralStruct {
         str_val.push_str(&params_str);
         str_val.push(')');
         str_val.push_str(&self.body.string());
+
+        str_val
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct CallExpressionStruct {
+    token: Token,                  // The `(` token
+    pub function: Box<Expression>, // NOTE: is Box correct here
+    pub arguments: Vec<Expression>,
+}
+impl CallExpressionStruct {
+    fn new(token: Token, function: Expression, arguments: Vec<Expression>) -> Self {
+        Self {
+            token,
+            function: Box::new(function),
+            arguments,
+        }
+    }
+}
+impl Node for CallExpressionStruct {
+    fn token_literal(&self) -> String {
+        self.token.literal.clone()
+    }
+    fn string(&self) -> String {
+        let arguments_length = self.arguments.len() - 1;
+
+        let args_str = self
+            .arguments
+            .iter()
+            .enumerate()
+            .map(|(i, expr)| {
+                format!(
+                    "{}{}",
+                    expr.string(),
+                    if i < arguments_length { ", " } else { "" }
+                )
+            })
+            .collect::<String>();
+
+        let mut str_val = String::new();
+        str_val.push_str(&self.function.string());
+        str_val.push('(');
+        str_val.push_str(&args_str);
+        str_val.push(')');
 
         str_val
     }
