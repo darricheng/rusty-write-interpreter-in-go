@@ -1264,7 +1264,41 @@ return 993322;
     }
 
     #[test]
-    fn test_call_expression_parsing() {}
+    fn test_call_expression_parsing() {
+        let input = "add(1, 2 * 3, 4 + 5);";
+
+        let l = Lexer::new(input);
+        let mut p = Parser::new(l);
+        let program = p.parse_program();
+        check_parser_errors(p);
+
+        assert_eq!(
+            program.statements.len(),
+            1,
+            "Program has wrong number of statements. Got: {}",
+            program.statements.len()
+        );
+
+        let stmt = extract_expression(program.statements);
+        let exp_literal = match stmt {
+            Expression::CallExpression(ce) => ce,
+            e => panic!("expression not CallExpression, got {:?}", e),
+        };
+
+        assert!(test_identifier(*exp_literal.function, "add"));
+
+        let args = exp_literal.arguments;
+        assert_eq!(
+            args.len(),
+            3,
+            "Wrong length of arguments. Got {}",
+            args.len()
+        );
+
+        assert!(test_literal_expression(args[0].clone(), &1));
+        assert!(test_infix_expression(args[1].clone(), &2, "*", &3));
+        assert!(test_infix_expression(args[2].clone(), &4, "+", &5));
+    }
 
     #[test]
     fn test_call_expression_parameter_parsing() {}
