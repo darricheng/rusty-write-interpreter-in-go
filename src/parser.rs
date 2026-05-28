@@ -1,13 +1,15 @@
 use crate::ast::{
-    BlockStatement, BooleanStruct, Expression, ExpressionStatement, FunctionLiteralStruct,
-    IdentifierStruct, IfExpressionStruct, InfixExpressionStruct, IntegerLiteralStruct,
-    LetStatement, PrefixExpressionStruct, Program, ReturnStatement, Statement,
+    BlockStatement, BooleanStruct, CallExpressionStruct, Expression, ExpressionStatement,
+    FunctionLiteralStruct, IdentifierStruct, IfExpressionStruct, InfixExpressionStruct,
+    IntegerLiteralStruct, LetStatement, PrefixExpressionStruct, Program, ReturnStatement,
+    Statement,
 };
 use crate::token::TokenType;
 use crate::{lexer::Lexer, token::Token};
 
 /**
 * Operator Precedence
+* TODO: can this be changed to an enum?
 */
 const LOWEST: i32 = 1;
 const EQUALS: i32 = 2; // ==
@@ -404,6 +406,7 @@ impl Parser {
             TokenType::NotEq => Some(self.parse_infix_expression(left_expression)),
             TokenType::Lt => Some(self.parse_infix_expression(left_expression)),
             TokenType::Gt => Some(self.parse_infix_expression(left_expression)),
+            TokenType::LParen => Some(self.parse_call_expression(left_expression)),
             _ => None,
         }
     }
@@ -421,6 +424,7 @@ impl Parser {
             TokenType::NotEq => Some(()),
             TokenType::Lt => Some(()),
             TokenType::Gt => Some(()),
+            TokenType::LParen => Some(()),
             _ => None,
         }
     }
@@ -436,6 +440,38 @@ impl Parser {
         Expression::InfixExpression(InfixExpressionStruct::new(token, left, operator, right))
     }
 
+    fn parse_call_expression(&mut self, function: Expression) -> Expression {
+        let arguments = self.parse_call_arguments().unwrap();
+        let exp = CallExpressionStruct::new(self.current_token.clone(), function, arguments);
+
+        Expression::CallExpression(exp)
+    }
+    fn parse_call_arguments(&mut self) -> Option<Vec<Expression>> {
+        let mut args = Vec::<Expression>::new();
+
+        if self.peek_token_is(TokenType::RParen) {
+            self.next_token();
+            return Some(args);
+        }
+
+        self.next_token();
+        let next_exp = self.parse_expression(LOWEST).unwrap();
+        args.push(next_exp);
+
+        while self.peek_token_is(TokenType::Comma) {
+            self.next_token();
+            self.next_token();
+            let next_exp = self.parse_expression(LOWEST).unwrap();
+            args.push(next_exp);
+        }
+
+        if !self.expect_peek(TokenType::RParen) {
+            None
+        } else {
+            Some(args)
+        }
+    }
+
     fn precedences(token_type: TokenType) -> i32 {
         match token_type {
             TokenType::Eq => EQUALS,
@@ -446,6 +482,7 @@ impl Parser {
             TokenType::Minus => SUM,
             TokenType::Slash => PRODUCT,
             TokenType::Asterisk => PRODUCT,
+            TokenType::LParen => CALL,
             _ => LOWEST,
         }
     }
@@ -877,6 +914,15 @@ return 993322;
             OperatorPrecedenceParsingTest::new("2 / (5 + 5)", "(2 / (5 + 5))"),
             OperatorPrecedenceParsingTest::new("-(5 + 5)", "(-(5 + 5))"),
             OperatorPrecedenceParsingTest::new("!(true == true)", "(!(true == true))"),
+            OperatorPrecedenceParsingTest::new("a + add(b * c) + d", "((a + add((b * c))) + d)"),
+            OperatorPrecedenceParsingTest::new(
+                "add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))",
+                "add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))",
+            ),
+            OperatorPrecedenceParsingTest::new(
+                "add(a + b + c * d / f + g)",
+                "add((((a + b) + ((c * d) / f)) + g))",
+            ),
         ];
 
         let mut num_fail = 0;

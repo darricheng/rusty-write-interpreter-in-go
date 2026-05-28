@@ -346,7 +346,7 @@ pub struct CallExpressionStruct {
     pub arguments: Vec<Expression>,
 }
 impl CallExpressionStruct {
-    fn new(token: Token, function: Expression, arguments: Vec<Expression>) -> Self {
+    pub fn new(token: Token, function: Expression, arguments: Vec<Expression>) -> Self {
         Self {
             token,
             function: Box::new(function),
